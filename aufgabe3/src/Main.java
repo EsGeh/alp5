@@ -1,4 +1,6 @@
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,20 +18,38 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        InputStream in = p.getInputStream();
-        BufferedReader bin = new BufferedReader(new InputStreamReader(in));
+        InputStream fromRemoteTemp = p.getInputStream();
+        BufferedReader fromRemote = new BufferedReader(new InputStreamReader(fromRemoteTemp));
+        PrintStream toRemote = new PrintStream(p.getOutputStream());
+        
+        BufferedReader fromUser = new BufferedReader(new InputStreamReader(System.in));
+        
         try {
-            String temp = null;
-            do {
-                temp = bin.readLine();
-                if(temp != null){
-                    System.out.println(temp);
-                }
-            } while (temp != null);
-
+            while(true) {
+            	// user <- remoteProcess
+            	if(fromRemote.ready()) {
+            		String temp = fromRemote.readLine();
+	                if(temp != null){
+	                	String time = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+	                    System.out.println(time + ": got \"" + temp + "\"");
+	                }
+	            // user -> remoteProcess
+            	} else if( fromUser.ready()) {
+	                String time = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+            		String string = fromUser.readLine();
+            		System.out.println(time + ": sending \"" + string + "\"");
+            		toRemote.println(string);
+            		toRemote.flush();
+            	}
+            	try {
+            		Thread.sleep(50);
+            	} catch(InterruptedException e) {
+            		e.printStackTrace();
+            	}
+            }
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

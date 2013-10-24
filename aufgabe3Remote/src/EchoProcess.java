@@ -12,7 +12,7 @@ public class EchoProcess implements Runnable {
 					out.println("received \"" + currentInput + "\"");
 					out.flush();
 				}
-				Thread.sleep(50);
+				Thread.sleep(20);
 			}
 		}
 		catch(IOException e) {
