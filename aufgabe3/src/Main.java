@@ -11,14 +11,21 @@ public class Main {
     public static void main(String[] args){
         Process p = null;
         try {
-            p = Fork.fork("pwd");
+            p = Fork.fork("andreroehrig@wuhan.imp.fu-berlin.de:ls");
         } catch (IOException e) {
             e.printStackTrace();
         }
         InputStream in = p.getInputStream();
         BufferedReader bin = new BufferedReader(new InputStreamReader(in));
         try {
-            System.out.println(bin.readLine());
+            String temp = null;
+            do {
+                temp = bin.readLine();
+                if(temp != null){
+                    System.out.println(temp);
+                }
+            } while (temp != null);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
