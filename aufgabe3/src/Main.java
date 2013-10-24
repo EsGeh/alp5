@@ -11,7 +11,8 @@ public class Main {
     public static void main(String[] args){
         Process p = null;
         try {
-            p = Fork.fork("andreroehrig@wuhan.imp.fu-berlin.de:ls");
+            p = Fork.fork(args[0]);
+            //p = Fork.fork("andreroehrig@wuhan.imp.fu-berlin.de:ls");
         } catch (IOException e) {
             e.printStackTrace();
         }

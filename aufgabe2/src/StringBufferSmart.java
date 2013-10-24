@@ -55,9 +55,9 @@ public class StringBufferSmart implements Buffer<String> {
 	
 	/* precond:  ! isEmpty() */
 	protected String read() {
+		pr = (pr + 1) % maxSize;
 		String ret = new String(buffer[pr]);
 		buffer[pr] = null;
-		pr = (pr + 1) % maxSize;
 		return ret;
 	}
 	
