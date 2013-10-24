@@ -34,7 +34,7 @@ public class StringBufferImpl implements Buffer<String> {
 
 	@Override
 	public synchronized int length() {
-		return ;
+		return count();
 	}
 	public StringBufferImpl(int maxSize) throws InvalidSizeException {
 		if( maxSize<0 )

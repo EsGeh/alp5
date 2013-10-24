@@ -24,7 +24,7 @@ public class StringBufferSmart implements Buffer<String> {
 
 	@Override
 	public int length() {
-		//return 0;
+		return count();
 	}
 	public StringBufferSmart(int maxSize) throws InvalidSizeException {
 		if( maxSize<0 )
@@ -48,6 +48,10 @@ public class StringBufferSmart implements Buffer<String> {
 	protected boolean isEmpty() {
 		return pr == pw && buffer[pw] == null;
 	}
+	
+	protected int count() {
+		return pw - pr;
+	}	
 	
 	/* precond:  ! isEmpty() */
 	protected String read() {
