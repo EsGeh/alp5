@@ -10,7 +10,16 @@ import java.io.OutputStream;
  */
 public class Fork {
     public static Process fork(String input) throws IOException {
-        Process p = Runtime.getRuntime().exec("date");
+        Process p = null;
+        if (pThis == null){
+            pThis = new Fork();
+        }
+        if (!pThis.isremote(input)) {
+            p = Runtime.getRuntime().exec(input);
+        }
+        else if(pThis.isremote(input)){
+            p = Runtime.getRuntime().exec("ssh "+input);
+        }
         return p;
     }
 
@@ -22,4 +31,6 @@ public class Fork {
             return false;
         }
     }
+
+    static Fork pThis;
 }

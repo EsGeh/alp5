@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args){
         Process p = null;
         try {
-            p = Fork.fork("asdf");
+            p = Fork.fork("pwd");
         } catch (IOException e) {
             e.printStackTrace();
         }
