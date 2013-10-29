@@ -1,25 +1,37 @@
 module Main where
 
 import System.Environment
+import System.Exit
 import System.Cmd
+import Text.Regex
 --import Data.List.Split
 
+-- | destination for the local copies of the text and dictionary
 localTextFile = "/tmp/text"
 localDictFile = "/tmp/dict"
 
 main = do
 	programParams <- (getArgs >>= (return . calcProgramParams))
+	-- copy remote files onto this machine:
 	fetchFiles (fetchParams programParams)
 	
 	text <- textFromFile localTextFile
 	dict <- dictFromFile localDictFile
 	let range = checkParams programParams
 
- 	return $ check text dict range
+ 	case check range dict text of
+		True -> return $ exitSuccess
+		False -> return $ exitFailure
 
-check text dict range = undefined
-textFromFile textFile = undefined
-dictFromFile dictFile = undefined
+check range dict text = and $ map (findWordInDic (lines dict)) $ splitRegex separators text
+	where
+		-- this regEx should match one ore more occurences of any character, that is not a letter or a number
+		separators = mkRegex "[^[:alnum:]]+"
+
+findWordInDic dict word = elem word dict
+
+textFromFile textFile = readFile textFile
+dictFromFile dictFile = readFile dictFile
 
 --
 calcProgramParams args = case args of
@@ -40,8 +52,8 @@ calcProgramParams args = case args of
 -- | copy files from the server, and copy it to
 --   localTextFile and localDictFile
 fetchFiles args = do
-	system $ "scp " ++ scpParam (textFileInfo args) ++ " " ++ localTextFile
-	system $ "scp " ++ scpParam (dictFileInfo args) ++ " " ++ localDictFile
+	system $ "rsync -au " ++ scpParam (textFileInfo args) ++ " " ++ localTextFile
+	system $ "rsync -au " ++ scpParam (dictFileInfo args) ++ " " ++ localDictFile
 
 scpParam fileInfo = case serverInfo fileInfo of
 	Nothing -> path fileInfo
