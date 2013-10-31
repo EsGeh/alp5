@@ -16,9 +16,8 @@ localDictFile = "/tmp/dict"
 main = do
 	hSetBuffering stdout LineBuffering
 	programParams <- (getArgs >>= (return . calcProgramParams))
-	putStrLn "fetching Files..."
 	-- copy remote files onto this machine:
-	fetchFiles (fetchParams programParams)
+	fetchFiles $! fetchParams $! programParams
 	-- # TODO: add error handling
 
 	putStrLn "processing text..."
@@ -92,9 +91,11 @@ calcProgramParams args = case args of
 fetchFiles args = do
 	textFileExists <- doesFileExist localTextFile 
 	dictFileExists <- doesFileExist localDictFile
-	fetchTextReturn <- if textFileExists then return Nothing else
+	fetchTextReturn <- if textFileExists then return Nothing else do
+		putStrLn "fetching text file..." 
 		fetchFile (textFileInfo args) localTextFile
-	fetchDictReturn <- if dictFileExists then return Nothing else
+	fetchDictReturn <- if dictFileExists then return Nothing else do
+		putStrLn "fetching dictionary..." 
 		fetchFile (textFileInfo args) localTextFile
 	return $ FetchFilesReturn {
 		fetchTextReturn = fetchTextReturn,
