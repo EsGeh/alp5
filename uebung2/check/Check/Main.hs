@@ -82,8 +82,6 @@ calcProgramParams args = case args of
 			
 	_ -> error "usage: check [user@server:]FILE [user@server:]DICT FROM TO"
 
-
-
 data ProgramParams = ProgramParams {
 	fetchParams :: FetchParams,
 	checkParams :: CheckParams
