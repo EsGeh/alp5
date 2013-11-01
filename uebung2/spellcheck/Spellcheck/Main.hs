@@ -19,11 +19,38 @@ main = do
 
 	putStrLn "dividing source file..."
 	text <- readFile $ localTextFile
-	return $ calcHostParams (hosts programParams) text
+	let hostParams = calcHostParams (hosts programParams) text
+	hosts <- spawnHosts $ zip (hosts programParams) hostParams
+	printOutput hosts
 
 	return ()
 
-calcHostParams hosts text = divText (length hosts) text
+printOutput ((stdIn,stdOut,_,_):rest) = do
+	hSetBinaryMode stdIn False 
+	hSetBinaryMode stdOut False
+	hGetLine stdIn >>= putStrLn
+	printOutput rest
+
+--spawnHosts :: [(ServerInfo,String)] -> IO [(Handle, Handle, Handle, ProcessHandle)]
+spawnHosts hostParams = case hostParams of
+	[] -> return []
+	((host,params):ps) -> do
+		let command = "ssh " ++ showServerInfo host ++ " " ++ params
+		putStrLn $ "executing: " ++ command
+		ret <- (runInteractiveCommand command)
+		rest <- spawnHosts ps
+		return $ ret : rest
+
+calcHostParams :: [ServerInfo] -> String -> [String]
+calcHostParams hosts text = calcHostParams' $ divText (length hosts) text
+	where
+		calcHostParams' fromToTuples = zipWith hostWithFromTo (map showServerInfo hosts) $
+			map (\(from,to) -> (show from ++ " " ++ show to)) fromToTuples
+		hostWithFromTo host fromTo = host ++ " " ++ fromTo
+
+showServerInfo serverInfo = (show $ server serverInfo) ++ case userName serverInfo of
+	Nothing -> ""
+	Just userName -> "@" ++ userName
 
 divText count text = rangesFromIndices $ filter (/=0) $ calcTextPiecesLength count text
 
@@ -52,14 +79,15 @@ thd' (_,_,x,_) = x
 calcProgramParams args = case args of
 	(textFile : dictFile : hosts) -> ProgramParams {
 		fetchParams = fetchParams,
-		hosts = hosts }
+		hosts = hosts' }
 		where
 			fetchParams = fileInfoFromString textFile
+			hosts' = map serverInfoFromString hosts
 			
 	_ -> error "usage: Spellcheck [user@server:]FILE [user@server:]DICT HOST..."
 
 
 data ProgramParams = ProgramParams {
 	fetchParams :: FileInfo,
-	hosts :: [String]
+	hosts :: [ServerInfo]
 }

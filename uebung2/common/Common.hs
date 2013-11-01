@@ -60,9 +60,23 @@ data ServerInfo = ServerInfo {
 	userName :: Maybe String
 } deriving( Show )
 
+-- # TODO
 fileInfoFromString string = FileInfo {
 		serverInfo = serverInfo,
 		path = p }
 		where
-			p = string
-			serverInfo = Nothing
+			(p,serverInfo) = case elem ':' string of
+				False -> (string,Nothing)
+				True -> case span (/=':') string of
+					(p',_:f) -> 
+						(p', Just $ serverInfoFromString f)
+
+serverInfoFromString string = case elem '@' string of
+	False -> ServerInfo {
+		server = string,
+		userName = Nothing }
+	True -> ServerInfo {
+		server = server,
+		userName = Just userName }
+		where
+			(server,_:userName) = span (/='@') string
