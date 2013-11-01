@@ -35,12 +35,14 @@ data CheckResult = CheckResult {
 }
 type Word = String
 
-check range dict text = --splitAtNewLine dict
-	check' (splitAtNewLine dict) $ splitRegex separators text
+check range dict text =
+	check' (splitAtNewLine dict) $ splitRegex separators $ cutFromText range text
 	where
 		-- this regEx should match one ore more occurences of any character, that is not a letter or a number
 		separators = mkRegex "[^[:alnum:]]+"
 		dictSeparator = mkRegex "$"
+
+cutFromText (from,to) text = take (to-from) $ drop from text
 
 -- | this is a bit complicated, because a line ending can be one of "\r\n" "\n" or "\r"
 splitAtNewLine string = 
@@ -71,9 +73,7 @@ dictFromFile dictFile = readFile dictFile
 calcProgramParams args = case args of
 	(textFile : dictFile : from : to : []) -> ProgramParams {
 		fetchParams = fetchParams,
-		checkParams = CheckParams { 
-			startPos = startPos,
-			count = endPos - startPos } }
+		checkParams = (startPos,endPos - startPos) }
 		where
 			(startPos, endPos) = (read from, read to)
 			fetchParams = FetchParams {
@@ -88,7 +88,4 @@ data ProgramParams = ProgramParams {
 	checkParams :: CheckParams
 }
 
-data CheckParams = CheckParams {
-	startPos :: Int,
-	count :: Int
-} deriving( Show )
+type CheckParams = (Int,Int)
