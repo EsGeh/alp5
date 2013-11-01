@@ -12,6 +12,7 @@ import Control.Monad
 main = do
 	hSetBuffering stdout LineBuffering
 	programParams <- (getArgs >>= (return . calcProgramParams))
+
 	-- copy remote files onto this machine:
 	fetchFiles $! fetchParams $! programParams
 	-- # TODO: add error handling

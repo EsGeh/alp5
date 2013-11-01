@@ -14,11 +14,11 @@ fetchFiles args = do
 	textFileExists <- doesFileExist localTextFile 
 	dictFileExists <- doesFileExist localDictFile
 	fetchTextReturn <- if textFileExists then return Nothing else do
-		putStrLn "fetching text file..." 
+		putStrLn $ "fetching text file... " ++ (show $ textFileInfo args)
 		fetchFile (textFileInfo args) localTextFile
 	fetchDictReturn <- if dictFileExists then return Nothing else do
-		putStrLn "fetching dictionary..." 
-		fetchFile (textFileInfo args) localTextFile
+		putStrLn $ "fetching dictionary... " ++ (show $ dictFileInfo args)
+		fetchFile (dictFileInfo args) localDictFile
 	return $ FetchFilesReturn {
 		fetchTextReturn = fetchTextReturn,
 		fetchDictReturn = fetchDictReturn
@@ -65,11 +65,11 @@ fileInfoFromString string = FileInfo {
 		serverInfo = serverInfo,
 		path = p }
 		where
-			(p,serverInfo) = case elem ':' string of
-				False -> (string,Nothing)
+			(serverInfo, p) = case elem ':' string of
+				False -> (Nothing, string)
 				True -> case span (/=':') string of
-					(p',_:f) -> 
-						(p', Just $ serverInfoFromString f)
+					(srvr, _:f) -> 
+						(Just $ serverInfoFromString srvr, f)
 
 serverInfoFromString string = case elem '@' string of
 	False -> ServerInfo {
@@ -79,4 +79,4 @@ serverInfoFromString string = case elem '@' string of
 		server = server,
 		userName = Just userName }
 		where
-			(server,_:userName) = span (/='@') string
+			(userName, _:server) = span (/='@') string
