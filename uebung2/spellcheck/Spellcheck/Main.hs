@@ -4,6 +4,7 @@ import Common
 import System.Process
 import Text.Regex
 
+import Control.Concurrent
 import System.IO
 import System.Environment
 
@@ -12,6 +13,7 @@ main :: IO ()
 main = do
 	hSetBuffering stdout LineBuffering
 	programParams <- (getArgs >>= (return . calcProgramParams))
+	putStrLn $ "program params: " ++ show programParams
 	-- copy remote files onto this machine:
 	putStrLn $ "fetching \"" ++ show (fetchParams programParams) ++ "\""
 	fetchFile (fetchParams $! programParams) localTextFile
@@ -21,21 +23,25 @@ main = do
 	text <- readFile $ localTextFile
 	let hostParams = calcHostParams (hosts programParams) text
 	hosts <- spawnHosts $ zip (hosts programParams) hostParams
+	putStrLn $ "hosts: " ++ show hostParams
 	printOutput hosts
 
 	return ()
 
+printOutput [] = return ()
 printOutput ((stdIn,stdOut,_,_):rest) = do
-	hSetBinaryMode stdIn False 
+	{-hSetBinaryMode stdIn False 
 	hSetBinaryMode stdOut False
-	hGetLine stdIn >>= putStrLn
+	hSetBuffering stdIn LineBuffering 
+	hSetBuffering stdOut NoBuffering -}
+	hGetContents stdOut >>= putStrLn
 	printOutput rest
 
 --spawnHosts :: [(ServerInfo,String)] -> IO [(Handle, Handle, Handle, ProcessHandle)]
 spawnHosts hostParams = case hostParams of
 	[] -> return []
 	((host,params):ps) -> do
-		let command = "ssh " ++ showServerInfo host ++ " " ++ params
+		let command = "ssh " ++ params
 		putStrLn $ "executing: " ++ command
 		ret <- (runInteractiveCommand command)
 		rest <- spawnHosts ps
@@ -44,9 +50,9 @@ spawnHosts hostParams = case hostParams of
 calcHostParams :: [ServerInfo] -> String -> [String]
 calcHostParams hosts text = calcHostParams' $ divText (length hosts) text
 	where
-		calcHostParams' fromToTuples = zipWith hostWithFromTo (map showServerInfo hosts) $
+		calcHostParams' fromToTuples = zipWith concWithSpace (map showServerInfo hosts) $
 			map (\(from,to) -> (show from ++ " " ++ show to)) fromToTuples
-		hostWithFromTo host fromTo = host ++ " " ++ fromTo
+		concWithSpace host fromTo = host ++ ":check " ++ "" ++ fromTo
 
 showServerInfo serverInfo = (show $ server serverInfo) ++ case userName serverInfo of
 	Nothing -> ""
@@ -77,7 +83,7 @@ snd' (_,x,_,_) = x
 thd' (_,_,x,_) = x
 
 calcProgramParams args = case args of
-	(textFile : dictFile : hosts) -> ProgramParams {
+	(textFile : hosts) -> ProgramParams {
 		fetchParams = fetchParams,
 		hosts = hosts' }
 		where
@@ -86,8 +92,7 @@ calcProgramParams args = case args of
 			
 	_ -> error "usage: Spellcheck [user@server:]FILE [user@server:]DICT HOST..."
 
-
 data ProgramParams = ProgramParams {
 	fetchParams :: FileInfo,
 	hosts :: [ServerInfo]
-}
+} deriving( Show )
