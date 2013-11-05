@@ -1,6 +1,7 @@
 package main
 
-import "math"
+import "f"
+
 import "log"
 import "io"
 import "fmt"
@@ -28,34 +29,11 @@ func main() {
 	// 2. read stdin and retrieve the list of numbers to be sorted:
 	smaller, greater := getInput()
 
-	// 3. call f:
-	smaller_, greater_ := f(digit, smaller, greater)
+	// 3. call F:
+	smaller_, greater_ := f.F(digit, smaller, greater)
 	output(smaller_ , greater_ )
 }
 
-
-func f( digit uint, smaller []uint, greater []uint) (smaller_ , greater_ []uint) {
-
-	smaller_s, smaller_g := sort( digit, smaller )
-	greater_s, greater_g := sort( digit, greater )
-
-	smaller_ = append(smaller_s, greater_s...)
-	greater_ = append(smaller_g, greater_g...)
-
-	return
-}
-
-func sort(digit uint, list []uint) (smaller,greater []uint) {
-	for _, elem := range list {
-		bit := (elem / uint(math.Pow(2,float64(digit)))) % 2
-		if bit == 0 {
-			smaller = append(smaller, elem)
-		} else {
-			greater = append(greater, elem)
-		}
-	}
-	return 
-}
 
 // reads 2 lists of unsigned integers from stdin and returns two slices containing them:
 func getInput() (smaller,greater []uint) {
