@@ -30,7 +30,7 @@ func main() {
 	smaller, greater := getInput()
 
 	// 3. call F:
-	smaller_, greater_ := f.F(digit, smaller, greater)
+	smaller_, greater_ := f.FSync(digit, smaller, greater)
 	output(smaller_ , greater_ )
 }
 
