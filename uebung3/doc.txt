@@ -1,0 +1,24 @@
+
+
+
+2. a) Flussgraph - to do
+b) ./aufgabe2/haskell/
+	quellcode: sort.hs
+	compilieren:
+		cabal configure
+		cabal build
+	ausführen:
+		./dist/build/sort/sort OPTIONS
+	OPTIONS:
+		-lsd: sortiert die Folge vom kleinsten bis zum größten bit
+		-msd: sortiert die Folge vom größten bis zum kleinsten bit
+	spezifikation:
+
+c) und e) ./aufgabe2/?
+	compilieren:
+		./build.sh
+	erzeugte Programme:
+		./bin/?
+
+
+//Das Programm als Shellskript mit filtern in einer imperativen Sprache geschrieben.
