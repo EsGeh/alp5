@@ -6,7 +6,6 @@ export GOPATH=$(pwd)
 
 cd "$GOPATH/src"
 cd fProg
-cd fProg
 go install
 
 cd "$GOPATH/src"
