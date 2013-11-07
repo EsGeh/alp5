@@ -15,7 +15,7 @@ import "os"
 			just the elements seperated by spaces or newlines. The input is terminated by EOF.
 */
 
-var countDigits int = 0
+//var countDigits int = 1 
 
 func main() {
 	// 1. parse command line args:
@@ -32,48 +32,59 @@ func main() {
 }
 
 func sort(list []uint) (list_ []uint) {
-	stopSort := make(chan f.Stop)
+	var smaller, greater []uint // := make( chan uint ), make( chan uint )
+	smallerIn, greaterIn := make(chan uint), make(chan uint)
+	smallerOut, greaterOut := make(chan uint), make(chan uint)
 	stop := make(chan f.Stop)
-	in, out := make( chan uint ), make( chan uint )
+
 	go sort_(
-		int(countDigits),
-		in, out,
-		stopSort )
-	// Feed sort_ :
+		0,
+		smallerIn, greaterIn,
+		smallerOut, greaterOut,
+		stop )
+	// feed sort_:
 	go func() {
+		fmt.Println("starting to feed:")
 		for i:=0; i<len(list); i++ {
-			in <- list[i]
+			fmt.Println("sending", list[i])
+			greaterIn <- list[i]
 		}
 	} ()
-	// eat from sort_ :
-	go func() {
-		for i:=0; i<len(list); i++ {
-			e := <- out
-			list_ = append(list_, e)
+	// eat from F:
+	for i:=0; i<len(list); i++ {
+		select {
+			case e:= <- smallerOut:
+				fmt.Println("receiving smaller", e)
+				smaller = append(smaller, e)
+			case e:= <- greaterOut:
+				fmt.Println("receiving greater", e)
+				greater = append(greater, e)
 		}
-		stop <- f.Stop{}
-	} ()
+	}
 	
-	<- stop
-	stopSort <- f.Stop{}
+	//<- eatAll
+	stop <- f.Stop{}
+	list_ = smaller
+	list_ = append( list_, greater... )
 	return
 }
 
-// uses MSD to sort the list:
 func sort_(
 	digit int,
-	in, out chan uint,
+	smallerIn, greaterIn chan uint,
+	smallerOut, greaterOut chan uint,
 	stop chan f.Stop ) {
 
 	fmt.Println("sort_",digit)
 
-	// stop recursion:
-	if digit == -1 {
-		fmt.Println("sort_",digit, "just copy")
+	if digit > f.MaxCountDigits {
+		//input -> output
 		for {
 			select {
-				case e := <- in:
-					out <- e
+				case e := <- smallerIn:
+					smallerOut <- e
+				case e := <- greaterIn:
+					greaterOut <- e
 				case <- stop:
 					break
 			}
@@ -81,52 +92,24 @@ func sort_(
 		return
 	}
 
-	// if digit >= 0
-	waitForAllOutput := make( chan f.Stop )
-	
-	greaterIn := make(chan uint)
-	smallerOut, greaterOut := make(chan uint), make(chan uint)
+	// digit <= f.MaxCountDigits :
 	stopF := make(chan f.Stop)
-	// execute F:
+	stopRecSort := make(chan f.Stop)
+	fSmallerOut, fGreaterOut := make(chan uint), make(chan uint)
 	go f.F(
 		uint(digit),
-		in, greaterIn,
-		smallerOut, greaterOut,
+		smallerIn, greaterIn,
+		fSmallerOut, fGreaterOut,
 		stopF )
-
-	// eat from F:
-	stopSmaller, stopGreater := make(chan f.Stop), make(chan f.Stop)
-	recSmallerOut, recGreaterOut := make(chan uint), make(chan uint)
 	go sort_(
-		digit-1,
-		smallerOut, recSmallerOut,
-		stopSmaller )
-	go sort_(
-		digit-1,
-		greaterOut, recGreaterOut,
-		stopGreater )
+		digit + 1,
+		fSmallerOut, fGreaterOut,
+		smallerOut, greaterOut,
+		stopRecSort )
 
-	//eat the output from the subcalls, and concatenate them to generate the output:
-	listSmallerOut, listGreaterOut := make([]uint, 0), make([]uint, 0)
-	go func() {
-		for {
-			select {
-				case e := <- recSmallerOut :
-					listSmallerOut = append(listSmallerOut, e)
-				case e := <- recGreaterOut :
-					listGreaterOut = append(listGreaterOut, e)
-				case <- stop:
-					waitForAllOutput <- f.Stop{}
-					break
-			}
-		}
-	} ()
-	<- waitForAllOutput
+	<- stop
 	stopF <- f.Stop{}
-	stopSmaller <- f.Stop{}
-	stopGreater <- f.Stop{}
-	// the result is in listSmallerOut and listGreaterOut now. Concatenating them gives us the return value:
-	return
+	stopRecSort <- f.Stop{}
 }
 
 // reads a list of unsigned integers from stdin and returns a slice containing them:
