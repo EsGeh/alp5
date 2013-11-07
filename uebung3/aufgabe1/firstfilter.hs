@@ -9,10 +9,10 @@ whereisstring word list = case findIndex (partoftuple word) list of
   Just val -> val
   Nothing  -> -1
 
-useword :: (Eq a) =>a -> [(Int,a)] -> [(Int,a)]
-useword word list
+useword :: (Eq a) =>[(Int,a)] -> a -> [(Int,a)]
+useword list word
   |whereisstring word list == -1 = [(1,word)] ++ list
-  |otherwise                     = list
+  |otherwise                     = updatelist (whereisstring word list) (modtuple (whereisstring word list) list) list
 
 updatelist:: Int -> a -> [a] -> [a]
 updatelist index new list =
@@ -22,3 +22,5 @@ modtuple :: Int -> [(Int,a)] -> (Int,a)
 modtuple index list = case drop index list of
   (count,word) : rest -> (count + 1, word)
   [] -> error "list empty!"
+ 
+wordmapper tuplelist wordlist = foldl useword tuplelist wordlist
