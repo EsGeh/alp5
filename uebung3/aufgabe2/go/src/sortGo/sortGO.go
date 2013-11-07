@@ -3,19 +3,19 @@ package main
 import "f"
 
 import "log"
-//import "io"
+import "io"
 import "fmt"
 import "os"
 
 /*
-	usage: f <digit>
-	spec: reads 2 lists from stdin using LIST_SYNTAX, and writes 2 Lists to stdout using LIST_SYNTAX.
+	usage: sort 
+	spec: reads a list from stdin using LIST_SYNTAX, and writes the sorted list to stdout using LIST_SYNTAX.
 	syntax:
 		LIST_SYNTAX:
-			"i1 i2 i3 ... | i4 i5 i6 ..." represents two lists ([i1, i2, i3, ... ], [i4, i5, i6, ...])
+			just the elements seperated by spaces or newlines. The input is terminated by EOF.
 */
 
-var countDigits uint = 32
+var countDigits int = 0
 
 func main() {
 	// 1. parse command line args:
@@ -34,11 +34,11 @@ func main() {
 func sort(list []uint) (list_ []uint) {
 	stopSort := make(chan f.Stop)
 	stop := make(chan f.Stop)
-	in, out := make( chan uint), make( chan uint)
+	in, out := make( chan uint ), make( chan uint )
 	go sort_(
 		int(countDigits),
 		in, out,
-		stop)
+		stopSort )
 	// Feed sort_ :
 	go func() {
 		for i:=0; i<len(list); i++ {
@@ -65,8 +65,11 @@ func sort_(
 	in, out chan uint,
 	stop chan f.Stop ) {
 
+	fmt.Println("sort_",digit)
+
 	// stop recursion:
 	if digit == -1 {
+		fmt.Println("sort_",digit, "just copy")
 		for {
 			select {
 				case e := <- in:
@@ -78,9 +81,9 @@ func sort_(
 		return
 	}
 
+	// if digit >= 0
 	waitForAllOutput := make( chan f.Stop )
 	
-	// if digit >= 0
 	greaterIn := make(chan uint)
 	smallerOut, greaterOut := make(chan uint), make(chan uint)
 	stopF := make(chan f.Stop)
@@ -126,48 +129,26 @@ func sort_(
 	return
 }
 
-// reads 2 lists of unsigned integers from stdin and returns two slices containing them:
+// reads a list of unsigned integers from stdin and returns a slice containing them:
 func getInput() (list []uint) {
 	list = make([]uint,0,100)
-	/*var currentInt uint
-	var currentString string
+
+	var currentInt uint
 	for {
-		_ , err := fmt.Scanf("%s", &currentString)
+		_ , err := fmt.Scanf("%d", &currentInt)
 		if err != nil {
 			if err == io.EOF {
-				break;
+				break
 			} else {
-				//fmt.Println("ERROR while parsing input: ", err)
 				log.Fatal("ERROR while parsing input: ", err)
 			}
 		}
-		_ , err = fmt.Sscan(currentString, &currentInt)
-		if err != nil {
-			if scanningSmaller {
-				_,err = fmt.Sscanf(currentString, "|")
-				if err != nil {
-					log.Fatal("ERROR2 while parsing input: ", err)
-				} else {
-					scanningSmaller = false
-					err = nil
-				}
-			}
-
-			if err != nil {
-				log.Fatal("ERROR while parsing input: ", err)
-			}
-		} else {
-			if scanningSmaller {
-				smaller = append(smaller,currentInt)
-			} else {
-				greater = append(greater,currentInt)
-			}
-		}
-	}*/
+		list = append( list, currentInt )
+	}
 	return
 }
 
-// prints 2 slices to stdout using the same syntax as getInput can read:
+// prints a slice to stdout using the same syntax as getInput can read:
 func output(list []uint) {
 	for _,elem := range list {
 		fmt.Print(elem, " ")
