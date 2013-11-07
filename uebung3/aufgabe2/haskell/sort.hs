@@ -25,13 +25,23 @@ distribute s (i:is)
 		bit = (i `div` 2^s)`mod` 2
 
 
+-- just chaining fs:
+sort list = let (s,g) = sort_ (-1) ([],list) in
+	s ++ g
+
+sort_ (-1) input = sort_ 0 input
+sort_ n input 
+	| n < countDigits = sort_ (n+1) $ f n input 
+	| otherwise = input
+
+	
 -- least to most significant bit
 sortLSD list = let (s,g) = sortLSD' 0 ([],list) in
 	s ++ g
 sortLSD' 0 (s,g) = sortLSD' 1 $ f 0 (s,g)
-sortLSD' n (s,g) = case g of
-	[] -> (s,g)
-	_ -> sortLSD' (n+1) $ f n (s,g)
+sortLSD' n (s,g) 
+	| n < (countDigits-1) = sortLSD' (n+1) $ f n (s,g)
+	| otherwise = (s,g) 
 
 -- most to least significant bit
 sortMSD list = sortMSD' (countDigits-1) list
@@ -41,7 +51,7 @@ sortMSD' n list = let (smaller, bigger) = f n (list,[]) in
 
 
 countDigits :: Int
-countDigits = 16
+countDigits = 8
 {-
 countDigits = log2 $ (fromIntegral (maxBound :: Int) :: Integer) - (fromIntegral (minBound :: Int) :: Integer)
 log2 n = ceiling $ logBase 2 (fromIntegral n)

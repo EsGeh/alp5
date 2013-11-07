@@ -1,10 +1,12 @@
 package f
 
 import "math"
-//import "fmt"
+import "fmt"
 
 
 type Stop struct {}
+
+var MaxCountDigits int = 2
 
 /* this version of "f" internally uses concurrency (namely "f"), but hides it from the caller */
 func FSync( digit uint, smaller []uint, greater []uint) (smaller_ , greater_ []uint) {
@@ -75,7 +77,7 @@ func sort(
 	for {
 		select {
 			case elem:= <- in:
-				//fmt.Println("sorting", elem)
+				fmt.Println("sorting with ", digit, elem)
 				bit := (elem / uint(math.Pow(2,float64(digit)))) % 2
 				if bit == 0 {
 					smallerOut <- elem

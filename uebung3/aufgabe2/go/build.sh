@@ -9,10 +9,9 @@ cd fProg
 go install
 
 cd "$GOPATH/src"
-cd f
+cd sortGo
 go install
 
-
 cd "$GOPATH/src"
-cd sort
+cd f
 go install
