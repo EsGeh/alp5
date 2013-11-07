@@ -11,3 +11,8 @@ go install
 cd "$GOPATH/src"
 cd f
 go install
+
+
+cd "$GOPATH/src"
+cd sort
+go install
