@@ -1,7 +1,8 @@
-module Check.Main where
+module Main where
 
 
-import Common
+import FirstFilter
+
 import System.IO
 import System.Environment
 import Text.Regex
@@ -10,18 +11,19 @@ import Control.Monad
 import Data.List
 --import Data.List.Split
 
+textFile = "file"
 
 main = do
 	hSetBuffering stdout LineBuffering
-	programParams <- (getArgs >>= (return . calcProgramParams))
+	--programParams <- (getArgs >>= (return . calcProgramParams))
 
 	-- copy remote files onto this machine:
-	fetchFiles $! fetchParams $! programParams
+	--fetchFiles $! fetchParams $! programParams
 	-- # TODO: add error handling
 
 	putStrLn "processing text..."
-	text <- textFromFile localTextFile
-	dict <- dictFromFile localDictFile
+	text <- readFile textFile
+	--dict <- dictFromFile localDictFile
 	
 	let unsortedtuples = wordmapper [] text
 	putStrLn unsortedtuples
@@ -61,12 +63,8 @@ findWordInDic dict word = case elem word dict of
 	True -> Nothing
 	_ -> Just word
 
-
-textFromFile textFile = readFile textFile
-dictFromFile dictFile = readFile dictFile
-
 --
-calcProgramParams args = case args of
+{-calcProgramParams args = case args of
 	(textFile : dictFile : from : to : []) -> ProgramParams {
 		fetchParams = fetchParams,
 		checkParams = (startPos,endPos - startPos) }
@@ -78,35 +76,13 @@ calcProgramParams args = case args of
 			}
 			
 	_ -> error "usage: check [user@server:]FILE [user@server:]DICT FROM TO"
+-}
 
+{-
 data ProgramParams = ProgramParams {
 	fetchParams :: FetchParams,
 	checkParams :: CheckParams
 }
+-}
 
 type CheckParams = (Int,Int)
-
-partoftuple :: Eq b => b -> (a,b) -> Bool
-partoftuple word tuple
-  |snd(tuple) == word = True
-  |otherwise          = False
-
-whereisstring word list = case findIndex (partoftuple word) list of
-  Just val -> val
-  Nothing  -> -1
-
-useword :: (Eq a) =>[(Int,a)] -> a -> [(Int,a)]
-useword list word
-  |whereisstring word list == -1 = [(1,word)] ++ list
-  |otherwise                     = updatelist (whereisstring word list) (modtuple (whereisstring word list) list) list
-
-updatelist:: Int -> a -> [a] -> [a]
-updatelist index new list =
-  take index list ++ [new] ++ drop(index+1) list
-
-modtuple :: Int -> [(Int,a)] -> (Int,a)
-modtuple index list = case drop index list of
-  (count,word) : rest -> (count + 1, word)
-  [] -> error "list empty!"
- 
-wordmapper tuplelist wordlist = foldl useword tuplelist wordlist

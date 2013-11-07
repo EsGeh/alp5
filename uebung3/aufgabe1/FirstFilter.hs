@@ -1,3 +1,5 @@
+module FirstFilter where
+
 import Data.List
 
 partoftuple :: Eq b => b -> (a,b) -> Bool
