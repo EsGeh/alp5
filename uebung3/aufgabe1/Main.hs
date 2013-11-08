@@ -22,7 +22,7 @@ main = do
 	-- # TODO: add error handling
 
 	putStrLn "processing text..."
-	text <- readFile textFile
+	text <- getContents
 	--dict <- dictFromFile localDictFile
 	
 	let unsortedtuples = sorttuplelist $ lines text
