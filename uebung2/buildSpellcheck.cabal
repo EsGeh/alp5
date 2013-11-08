@@ -12,10 +12,10 @@ Executable check
   Main-is: Main.hs
   other-modules: Check.Main
   hs-source-dirs: check
-  build-depends: Spellcheck, base >=4.5.*, regex-compat, process >= 1.1.0.1
+  build-depends: Spellcheck, base >=4.5.0, regex-compat, process >= 1.1.0.1
 
 Executable spellcheck
   Main-is: Main.hs
   other-modules: Spellcheck.Main
   hs-source-dirs: spellcheck
-  build-depends: Spellcheck, base >=4.5.*, regex-compat, process >= 1.1.0.1
+  build-depends: Spellcheck, base >=4.5.0, regex-compat, process >= 1.1.0.1
