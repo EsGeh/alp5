@@ -1,24 +1,73 @@
 
 
-
 2. a) Flussgraph - to do
-b) ./aufgabe2/haskell/
-	quellcode: sort.hs
-	compilieren:
+
+b) Verteiltes System in Haskell:
+	Ordner: ./aufgabe2/haskell/
+	Quellcode: sort.hs
+	Compilieren:
 		cabal configure
 		cabal build
-	ausführen:
+	Ausführen:
 		./dist/build/sort/sort OPTIONS
 	OPTIONS:
 		-lsd: sortiert die Folge vom kleinsten bis zum größten bit
 		-msd: sortiert die Folge vom größten bis zum kleinsten bit
-	spezifikation:
+	Spezifikation:
+		erwartet eine liste von zahlen, durch newline getrennt. gibt die sortierte Liste aus
 
-c) und e) ./aufgabe2/?
-	compilieren:
+c) Das Programm verwendet die Implementierung von "f" in Go:
+	Ordner: ./aufgabe2/go/
+	Quellcode: src/fProg/fProg.go, src/f/f.go
+	Compilieren:
 		./build.sh
-	erzeugte Programme:
-		./bin/?
+	Ausführen:
+		./bin/fProg DIGIT
+	DIGIT: die Binärstelle, nach der sortiert werden soll
+	Spezifikation:
+		erwartet 2 Listen von der Standardeingabe, und gibt 2 sortierte Listen aus. Ein- und Ausgabe haben folgende Syntax:
+		"i1 i2 i3 ... | i4 i5 i6 ..." steht für 2 Listen ([i1, i2, i3, ... ], [i4, i5, i6, ...]
+
+Außerdem gibt es das Bash-Skript "shellSort.sh":
+	./aufgabe2/
+	quellcode: ./shellSort.sh
+	ausführen:
+		./shellSort.sh
+	Spezifikation:
+		Eingabe: eine Liste von Zahlen, wahlweise durch Leerzeichen oder Newline getrennt
+		Ausgabe: eine geordnete Liste von Zahlen, getrennt durch Newline
+
+d)
+
+e) -- aus Zeitmangel ausgelassen --
+
+f) Testen der Laufzeiten der verschiedenen Implementierungen:
+
+f1): das Shellscript, f in Go implementiert (2c)):
+$ time cat testData/numbers | ./shellSort.sh > /dev/null 
+
+	real	0m17.339s
+	user	0m13.837s
+	sys	0m6.832s
+
+f2): das HaskellProgramm:
+$ time cat ../testData/numbers | ./dist/build/sort/sort -lsd > /dev/null 
+
+real	0m0.956s
+user	0m0.940s
+sys	0m0.012s
+
+f3): das Dienstprogramm "sort"
+time cat ../testData/numbers | sort > /dev/null 
+
+real	0m0.206s
+user	0m0.192s
+sys	0m0.008s
 
 
-//Das Programm als Shellskript mit filtern in einer imperativen Sprache geschrieben.
+Ergebnis: 
+Am besten schneidet das Dienstprogramm "sort" ab. Es nutzt vermutlich keinen Radix-Sort, der für einen so großen Wertebereich sehr ineffizient ist.
+Das HaskellProgramm ist mit ca. 1 sec am zweitschnellsten. Es nutzt zwar Radix-Sort, kann aber in ein sehr effizientes Programm übersetzt werden.
+Das Shellskript als Frontend für ein Go Programm, ist am langsamsten, es benötigt über 15 sec, um die Testdaten zu sortieren. Hier wirken sich die Eigenschaften von Bash als interpretierte Skriptsprache negativ aus.
+
+

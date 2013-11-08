@@ -51,7 +51,7 @@ sortMSD' n list = let (smaller, bigger) = f n (list,[]) in
 
 
 countDigits :: Int
-countDigits = 8
+countDigits = 16
 {-
 countDigits = log2 $ (fromIntegral (maxBound :: Int) :: Integer) - (fromIntegral (minBound :: Int) :: Integer)
 log2 n = ceiling $ logBase 2 (fromIntegral n)

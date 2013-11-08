@@ -32,7 +32,9 @@ func main() {
 }
 
 func sort(list []uint) (list_ []uint) {
-	var smaller, greater []uint // := make( chan uint ), make( chan uint )
+
+	var smaller, greater []uint 
+
 	smallerIn, greaterIn := make(chan uint), make(chan uint)
 	smallerOut, greaterOut := make(chan uint), make(chan uint)
 	stop := make(chan f.Stop)
@@ -41,56 +43,71 @@ func sort(list []uint) (list_ []uint) {
 		0,
 		smallerIn, greaterIn,
 		smallerOut, greaterOut )
-		//stop )
-	greaterIn <- uint( len(list) )
-	smallerIn <- 0
+
 	// feed sort_:
+	fmt.Println("starting to feed:")
 	go func() {
-		//fmt.Println("starting to feed:")
+		greaterIn <- uint( len(list) )
+		smallerIn <- 0
+
 		for i:=0; i<len(list); i++ {
 			fmt.Println("sending", list[i])
 			greaterIn <- list[i]
 		}
 	} ()
-	// eat from F:
-	for i:=0; i<len(list); i++ {
-		select {
-			case e:= <- smallerOut:
-				fmt.Println("receiving smaller", e)
-				smaller = append(smaller, e)
-			case e:= <- greaterOut:
-				fmt.Println("receiving greater", e)
-				greater = append(greater, e)
+	// eat from sort_:
+	fmt.Println("starting to eat:")
+	go func() {
+		for i:=0; i<len(list); i++ {
+			select {
+				case e:= <- smallerOut:
+					fmt.Println("receiving smaller", e)
+					smaller = append(smaller, e)
+				case e:= <- greaterOut:
+					fmt.Println("receiving greater", e)
+					greater = append(greater, e)
+			}
 		}
-	}
+		stop <- f.Stop{}
+	} ()
 	
+	<- stop
 	//<- eatAll
-	stop <- f.Stop{}
 	list_ = smaller
 	list_ = append( list_, greater... )
 	return
 }
 
 func sort_(
-	//count int,
 	digit int,
 	smallerIn, greaterIn chan uint,
 	smallerOut, greaterOut chan uint ) {
-	//stop chan f.Stop ) {
 
-	//fmt.Println("sort_",digit)
+	fmt.Println("sort_",digit)
 
 	if digit > f.MaxCountDigits {
-		//input -> output
-		countSmaller , countGreater := <-smallerIn, <- greaterIn
-		for i:=0; i<int(countSmaller+countGreater); i++{
-			select {
-				case e := <- smallerIn:
-					smallerOut <- e
-				case e := <- greaterIn:
-					greaterOut <- e
+		fmt.Println("Hi")
+		stopS, stopG := make( chan f.Stop), make( chan f.Stop)
+		go func() {
+			count := <-smallerIn
+			fmt.Println("Left")
+			for i:=0; i<int(count); i++{
+				e := <- smallerIn
+				smallerOut <- e
 			}
-		}
+			stopS <- f.Stop{}
+		} ()
+		go func() {
+			count := <- greaterIn
+			fmt.Println("Left")
+			for i:=0; i<int(count); i++{
+				e := <- greaterIn
+				greaterOut <- e
+			}
+			stopG <- f.Stop{}
+		} ()
+		<- stopS
+		<- stopG
 		return
 	}
 

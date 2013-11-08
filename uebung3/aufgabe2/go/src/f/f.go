@@ -1,7 +1,7 @@
 package f
 
 import "math"
-import "fmt"
+//import "fmt"
 
 
 type Stop struct {}
@@ -24,26 +24,26 @@ func FSync( digit uint, smaller []uint, greater []uint) (smaller_ , greater_ []u
 	// feed F:
 	smallerIn <- uint( len(smaller) )
 	greaterIn <- uint( len(greater) )
-	fmt.Println("starting to feed:")
+	//fmt.Println("starting to feed:")
 	go func() {
 		for i:=0; i<len(smaller); i++ {
-			fmt.Println("sending", smaller[i])
+			//fmt.Println("sending", smaller[i])
 			smallerIn <- smaller[i]
 		}
 	} ()
 	go func() {
 		for i:=0; i<len(greater); i++ {
-			fmt.Println("sending", greater[i])
+			//fmt.Println("sending", greater[i])
 			greaterIn <- greater[i]
 		}
 	} ()
 	// eat from F:
 
-	fmt.Println("starting to eat:")
+	//fmt.Println("starting to eat:")
 	go func() {
 		count := int( <- smallerOut )
 
-		fmt.Println("countLeft:", count)
+		//fmt.Println("countLeft:", count)
 		for i:=0; i<count; i++ {
 		//for {
 			select {
@@ -55,7 +55,7 @@ func FSync( digit uint, smaller []uint, greater []uint) (smaller_ , greater_ []u
 	} ()
 	go func() {
 		count := int( <- greaterOut )
-		fmt.Println("countRight:", count)
+		//fmt.Println("countRight:", count)
 		for i:=0; i<count; i++ {
 		//for {
 			select {
@@ -103,9 +103,9 @@ func F(
 
 	// eat from sort left:
 	go func() {
-		fmt.Println("starting to eat from left:")
+		//fmt.Println("starting to eat from left:")
 		for i:=0; i<int(countSmallerIn); i++{
-			fmt.Println("left!")
+			//fmt.Println("left!")
 			select {
 				case e := <- sortLSmallerOut:
 					a = append( a, e )
@@ -113,14 +113,14 @@ func F(
 					b = append( b, e )
 			}
 		}
-		fmt.Println("stopping to eat from left:")
+		//fmt.Println("stopping to eat from left:")
 		stopEatL <- Stop{}
 	} ()
 	// eat from sort right:
 	go func() {
-		fmt.Println("starting to eat from right:")
+		//fmt.Println("starting to eat from right:")
 		for i:=0; i<int(countGreaterIn); i++{
-			fmt.Println("left!")
+			//fmt.Println("left!")
 			select {
 				case e := <- sortRSmallerOut:
 					c = append( c, e )
@@ -128,13 +128,13 @@ func F(
 					d = append( d, e )
 			}
 		}
-		fmt.Println("stopping to eat from right:")
+		//fmt.Println("stopping to eat from right:")
 		stopEatR <- Stop{}
 	} ()
 
 	<- stopEatL
 	<- stopEatR
-	fmt.Println("Holla")
+	//fmt.Println("Holla")
 	a = append( a, c... )
 	smallerOut <- uint( len(a) )
 	for i:=0; i<len(a); i++ {
@@ -158,7 +158,7 @@ func sort(
 	for {
 		select {
 			case elem:= <- in:
-				fmt.Println("sorting with ", digit, elem)
+				//fmt.Println("sorting with ", digit, elem)
 				bit := (elem / uint(math.Pow(2,float64(digit)))) % 2
 				if bit == 0 {
 					smallerOut <- elem

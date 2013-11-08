@@ -81,10 +81,10 @@ func getInput() (smaller,greater []uint) {
 // prints 2 slices to stdout using the same syntax as getInput can read:
 func output(smaller, greater []uint) {
 	for _,elem := range smaller {
-		fmt.Print(elem, " ")
+		fmt.Println(elem)
 	}
-	fmt.Print("| ")
+	fmt.Println("|")
 	for _,elem := range greater {
-		fmt.Print(elem, " ")
+		fmt.Println(elem)
 	}
 }
