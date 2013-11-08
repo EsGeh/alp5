@@ -1,6 +1,6 @@
 
 
-2. a) Flussgraph - to do
+2. a) siehe ./2a.png
 
 b) Verteiltes System in Haskell:
 	Ordner: ./aufgabe2/haskell/
@@ -15,6 +15,8 @@ b) Verteiltes System in Haskell:
 		-msd: sortiert die Folge vom größten bis zum kleinsten bit
 	Spezifikation:
 		erwartet eine liste von zahlen, durch newline getrennt. gibt die sortierte Liste aus
+	Bemerkung:
+		es gibt 2 Varianten, um Zahlen mittels Radix-Sort zu sortieren - vom kleinsten bis zum höchsten, oder vom höchsten bis zum kleinsten Bit. Das Haskell-Programm ermöglicht beide Varianten. Die Variante die dem Flussgraphen aus 2a) entspricht, ist heißt im Quellcode "sortLSD".
 
 c) Das Programm verwendet die Implementierung von "f" in Go:
 	Ordner: ./aufgabe2/go/
@@ -37,7 +39,17 @@ Außerdem gibt es das Bash-Skript "shellSort.sh":
 		Eingabe: eine Liste von Zahlen, wahlweise durch Leerzeichen oder Newline getrennt
 		Ausgabe: eine geordnete Liste von Zahlen, getrennt durch Newline
 
-d)
+d) Bei der Verkettung von f's als Filter ist entscheidend, dass diese im richtigen Moment blockieren, bevor sie die Ausgabe machen. Die Funktion besteht aus 2 Schritten:
+	1. sortieren der beiden Eingabelisten
+	2. Konkatenieren der Ergebnisse (im Code: (a++c, b++d) )
+Schritt 1. kann nebenläufig stattfinden. Bevor Schritt 2. passiert, müssen die insgesamt 4 Ergebnis-Listen aus Schritt 1. vollständig berechnet worden sein.
+Im Falle einer Parallelisierung von Schritt 1. ergibt sich eine Verbesserung der Laufzeit. Genauer:
+	Sei maxCountDigit die maximale Anzahl der Stellen, nach denen sortiert wird, n die Anzahl der Zahlen. Dann dauert
+		1. im Erwartungsfall n/2 T
+		2. konstante Zeit
+	Da zum Vollständigen Sortieren aller Zahlen maxCountDigit Filter verkettet arbeiten müssen, ergibt sich die Gesamtlaufzeit
+		maxCountDigit * (n/2 + const)
+			(Dabei ist "const" die Zeit, die für Schritt 2. benötigt wird)
 
 e) -- aus Zeitmangel ausgelassen --
 
