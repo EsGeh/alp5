@@ -40,11 +40,13 @@ func sort(list []uint) (list_ []uint) {
 	go sort_(
 		0,
 		smallerIn, greaterIn,
-		smallerOut, greaterOut,
-		stop )
+		smallerOut, greaterOut )
+		//stop )
+	greaterIn <- uint( len(list) )
+	smallerIn <- 0
 	// feed sort_:
 	go func() {
-		fmt.Println("starting to feed:")
+		//fmt.Println("starting to feed:")
 		for i:=0; i<len(list); i++ {
 			fmt.Println("sending", list[i])
 			greaterIn <- list[i]
@@ -70,46 +72,45 @@ func sort(list []uint) (list_ []uint) {
 }
 
 func sort_(
+	//count int,
 	digit int,
 	smallerIn, greaterIn chan uint,
-	smallerOut, greaterOut chan uint,
-	stop chan f.Stop ) {
+	smallerOut, greaterOut chan uint ) {
+	//stop chan f.Stop ) {
 
-	fmt.Println("sort_",digit)
+	//fmt.Println("sort_",digit)
 
 	if digit > f.MaxCountDigits {
 		//input -> output
-		for {
+		countSmaller , countGreater := <-smallerIn, <- greaterIn
+		for i:=0; i<int(countSmaller+countGreater); i++{
 			select {
 				case e := <- smallerIn:
 					smallerOut <- e
 				case e := <- greaterIn:
 					greaterOut <- e
-				case <- stop:
-					break
 			}
 		}
 		return
 	}
 
 	// digit <= f.MaxCountDigits :
-	stopF := make(chan f.Stop)
-	stopRecSort := make(chan f.Stop)
+	//stopF := make(chan f.Stop)
+	//stopRecSort := make(chan f.Stop)
 	fSmallerOut, fGreaterOut := make(chan uint), make(chan uint)
 	go f.F(
 		uint(digit),
 		smallerIn, greaterIn,
-		fSmallerOut, fGreaterOut,
-		stopF )
+		fSmallerOut, fGreaterOut )
 	go sort_(
 		digit + 1,
 		fSmallerOut, fGreaterOut,
-		smallerOut, greaterOut,
-		stopRecSort )
+		smallerOut, greaterOut)
+		//stopRecSort )
 
-	<- stop
-	stopF <- f.Stop{}
-	stopRecSort <- f.Stop{}
+	//<- stop
+	//stopF <- f.Stop{}
+	//stopRecSort <- f.Stop{}
 }
 
 // reads a list of unsigned integers from stdin and returns a slice containing them:
