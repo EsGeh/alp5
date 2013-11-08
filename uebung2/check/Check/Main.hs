@@ -17,7 +17,7 @@ main = do
 	fetchFiles $! fetchParams $! programParams
 	-- # TODO: add error handling
 
-	putStrLn "processing text..."
+	--putStrLn "processing text..."
 	text <- textFromFile localTextFile
 	dict <- dictFromFile localDictFile
 	let range = checkParams programParams
@@ -27,7 +27,7 @@ main = do
 
 	case textIsValid of
 		CheckResult [] -> putStrLn "ok"
-		CheckResult words -> mapM_ print words
+		CheckResult words -> mapM_ putStrLn words
 
 
 data CheckResult = CheckResult {
