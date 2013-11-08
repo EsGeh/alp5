@@ -11,7 +11,7 @@ import Control.Monad
 import Data.List
 --import Data.List.Split
 
-textFile = "file"
+textFile = "testtext"
 
 main = do
 	hSetBuffering stdout LineBuffering
@@ -22,11 +22,11 @@ main = do
 	-- # TODO: add error handling
 
 	putStrLn "processing text..."
-	text <- readFile textFile
+	text <- getContents
 	--dict <- dictFromFile localDictFile
 	
-	let unsortedtuples = wordmapper [] text
-	putStrLn unsortedtuples
+	let unsortedtuples = sorttuplelist $ lines text
+	putStrLn $ unlines (map show unsortedtuples)
 
 data CheckResult = CheckResult {
 	getWordList :: [Word]
