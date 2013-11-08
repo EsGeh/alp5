@@ -1,4 +1,7 @@
-
+1. c) Testen zeigt, dass die verteilte Lösung deutlich schneller ist, bei großen Eingaben wird nur etwa halb so viel Zeit verbraucht auf einem Multicore-System,
+aber auch auf 32-Bit-Einkernprozessoren ist die verteilte (mit n=2) Lösung schneller, weil der Text und das Wörterbuch vervielfältigt werden und der Zugriff
+auf die Daten der Flaschenhals des Problems ist. Verglichen haben wir, indem wir die Linux-Standardfunktion "time" vor die Ausführung des Shellscripts bzw. den 
+nicht verteilten Aufruf des check-Funktion, die wir an das Histogramm-Skript gepipet haben, gesetzt haben.
 
 2. a) siehe ./2a.png
 
