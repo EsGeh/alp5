@@ -1,3 +1,4 @@
+package udp;
 
 public class SendException extends Exception {
 	/**

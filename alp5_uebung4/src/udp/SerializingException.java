@@ -1,3 +1,4 @@
+package udp;
 
 public class SerializingException extends Exception {
 	/**
