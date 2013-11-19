@@ -1,3 +1,4 @@
+package process;
 
 public interface Process<M> {
 	// starts the thread, passing some peers:

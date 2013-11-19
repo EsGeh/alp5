@@ -1,16 +1,25 @@
+package process;
+
+import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
 
 
 public abstract class GenericProcess<M>
-	extends Thread
+	extends KnowsPeers<M>
 	implements Process<M> {
-
-	@Override
+	
 	public void start(Process<M>[] peers) {
-		this.peers = peers;
+		// register peers:
+		super.start(peers);
+		//run the thread:
+		super.start();
 	}
 
 	@Override
@@ -37,12 +46,27 @@ public abstract class GenericProcess<M>
 	}
 	
 	public GenericProcess(String name, int boxSize) {
-		log = Logger.getLogger(name + "(" + this.getClass().getName() + ")");
+		log = Logger.getLogger(this.getClass().getName() + "(" + name + ")" );
+		//System.out.println(name + "(" + this.getClass().getName() + ")");
+		try {
+			FileHandler fh = new FileHandler("log",false);
+			fh.setFormatter(new SimpleFormatter());
+			fh.setLevel(Level.ALL);
+			/*ConsoleHandler ch = new ConsoleHandler();
+			ch.setFormatter(new SimpleFormatter());
+			ch.setLevel(Level.ALL);*/
+			log.addHandler(fh);
+			//log.addHandler(ch);
+			log.setLevel(Level.ALL);
+		}
+		catch(SecurityException | IOException e) {
+			System.out.println("exception while creating log: " + e.getMessage());
+		}
 		
 		mailbox = new ArrayBlockingQueue<M>(boxSize);
 	}
 	
-	private Process<M> peers[];
+	
 	private BlockingQueue<M> mailbox;
 	protected Logger log;
 }
