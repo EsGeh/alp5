@@ -39,7 +39,9 @@ public class UDPInImpl<M> implements UDPIn<M> {
 		try {
 			ByteArrayInputStream in = new ByteArrayInputStream(data);
 			ObjectInputStream ois = new ObjectInputStream(in);
-			return (M )ois.readObject();
+			M ret = (M )ois.readObject();
+			ois.close();
+			return ret;
 		}
 		catch(IOException | ClassNotFoundException e) {
 			throw new SerializingException(e.getMessage());
