@@ -5,6 +5,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TestUDP {
 
@@ -13,7 +14,7 @@ public class TestUDP {
 		try {
 			for( int i=0; i<countProcess; i++) {
 				int inPort = basePort + i;
-				String outIP = "127.0.0.1";
+				String outIP = "localhost"; // "127.0.0.1";
 				int outPort = basePort + ((i+1) % countProcess);
 				String command = 
 						"java udp.Node " +
@@ -34,9 +35,15 @@ public class TestUDP {
 		// flood the ring with the "exit" message:
 		UDPOut<String> out = new UDPOutImpl<String>();
 		try {
-			out.start("127.0.0.1");
+			out.start("localhost");
 		} catch (UnknownHostException | SocketException e) {
 			System.out.println("exception while connecting to the ring: " + e.getMessage());
+		}
+		try {
+			Thread.sleep(5000);
+		}
+		catch(InterruptedException e) {
+			System.out.println("exception while trying to wait: " + e.getMessage());
 		}
 		System.out.println("flooding the ring... ");
 		try {
