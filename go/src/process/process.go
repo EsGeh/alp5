@@ -1,35 +1,41 @@
 package process
 
 
+type Process interface{
+	getPeers() []Process
+	start(peers []Process)
+	send(message Any)
+}
+
 type Any interface{}
 
-type Process struct {
+type ProcessImpl struct {
 	mailbox chan Any
 	peers []Process
 }
 
-func New( name string, size uint) (proc *Process) {
+func New( name string, size uint) (proc *ProcessImpl) {
 	mailbox := make(chan Any, size)
-	proc = & Process{ 
+	proc = & ProcessImpl{ 
 		mailbox,
 		nil,
 	}
 	return
 }
 
-func (this *Process) getPeers() ([]Process) {
+func (this *ProcessImpl) getPeers() ([]Process) {
 	return this.peers
 }
 
-func (this* Process) start(peers []Process) {
+func (this* ProcessImpl) start(peers []Process) {
 	this.peers = peers
 }
 
 
-func (this* Process) send(message Any) {
+func (this* ProcessImpl) send(message Any) {
 	this.mailbox <- message
 }
 
-func (this* Process) recv() Any {
+func (this* ProcessImpl) recv() Any {
 	return <- this.mailbox
 }
