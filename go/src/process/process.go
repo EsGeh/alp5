@@ -2,9 +2,10 @@ package process
 
 
 type Process interface{
-	getPeers() []Process
-	start(peers []Process)
-	send(message Any)
+	GetPeers() []Process
+	Start(peers []Process)
+	Send(message Any)
+	Recv() Any
 }
 
 type Any interface{}
@@ -23,19 +24,19 @@ func New( name string, size uint) (proc *ProcessImpl) {
 	return
 }
 
-func (this *ProcessImpl) getPeers() ([]Process) {
+func (this *ProcessImpl) GetPeers() ([]Process) {
 	return this.peers
 }
 
-func (this* ProcessImpl) start(peers []Process) {
+func (this* ProcessImpl) Start(peers []Process) {
 	this.peers = peers
 }
 
 
-func (this* ProcessImpl) send(message Any) {
+func (this* ProcessImpl) Send(message Any) {
 	this.mailbox <- message
 }
 
-func (this* ProcessImpl) recv() Any {
+func (this* ProcessImpl) Recv() Any {
 	return <- this.mailbox
 }
