@@ -26,6 +26,7 @@ public class UDPInImpl<M> implements UDPIn<M> {
 			byte[] inData = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(inData, 1024);
 			socket.receive(packet);
+			ret.ip = socket.getInetAddress();
 			ret.port = packet.getPort();
 			ret.message = fromByteRepr(packet.getData());
 			return ret;

@@ -1,5 +1,6 @@
 package udp;
 
+import java.awt.TrayIcon.MessageType;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.concurrent.BlockingQueue;
 import javax.activation.MailcapCommandMap;
 
 import udp.UDPIn.InputInformation;
+
+
 
 public class Comm {
 	public static void init(
@@ -71,8 +74,13 @@ public class Comm {
 					System.out.println("exception while receiving: " + e.getMessage());
 				}
 				// handle it:
-				if( isMetaMessage(inputInfo.message) ) {
-					handleMetaMessage(inputInfo);
+				Message msg = Message.fromString(
+						inputInfo.message,
+						inputInfo.getIP(),
+						inputInfo.getSenderPort()
+					);
+				if( msg.type != Message.Type.NORMAL ) {
+					handleMetaMessage( msg );
 				} else {
 					try {
 						mailbox.put( inputInfo );
@@ -86,8 +94,33 @@ public class Comm {
 			exit();
 		}
 		
-		private void handleMetaMessage(InputInformation<String> inputInfo) {
-			
+		private void handleMetaMessage( Message msg ) {
+			if( msg.type == Message.Type.HELLO  ) {
+				table.put(
+						msg.content,
+						new RoutingEntry(
+							msg.sourceIP,
+							msg.sourcePort,
+							1
+						)
+					);
+				spreadUpdate();
+			} else if ( msg.type == Message.Type.UPDATE ) {
+				try {
+					if( table.update(
+							RoutingTable.fromString(msg.content)
+						) ) {
+						spreadUpdate();
+					}
+				}
+				catch( SyntaxException e ) {
+					System.out.println("syntax error in update message: " + e.getMessage());
+				}
+			}
+		}
+		
+		void spreadUpdate() {
+			// to do:
 		}
 		
 		public Helper(
@@ -104,7 +137,7 @@ public class Comm {
 				outList = new ArrayList<UDPOut<String>>();
 				for( UDPAddress addr : neighbours ) {
 					UDPOut<String> out = new UDPOutImpl<String>();
-					out.start(addr.getIP());
+					out.start(addr.getIP().getHostName());
 				}
 			}
 			catch(SocketException | UnknownHostException e) {
@@ -112,8 +145,17 @@ public class Comm {
 			}
 		}
 		
-		boolean isMetaMessage(String msg) {
-			return false;
+		boolean isHello(String msg) {
+			String []lines = msg.split("\n");
+			return (
+					lines.length > 0 && lines[0] == "hello"
+				);
+		}
+		boolean isUpdate(String msg) {
+			String []lines = msg.split("\n");
+			return (
+					lines.length > 0 && lines[0] == "hello"
+				);
 		}
 		public void exit() {
 			in.stop();
