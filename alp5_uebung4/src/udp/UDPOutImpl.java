@@ -54,4 +54,8 @@ public class UDPOutImpl<M extends Serializable> implements UDPOut<M>
 	}
 	private InetAddress destAddress;
 	private DatagramSocket socket;
+	@Override
+	public InetAddress getIP() {
+		return destAddress;
+	}
 }

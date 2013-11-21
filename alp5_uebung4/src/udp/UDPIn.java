@@ -9,6 +9,9 @@ public interface UDPIn<M> {
 	
 	InputInformation<M> recv() throws ReceiveException;
 	
+	int getPort();
+	InetAddress getIP();
+	
 	public class InputInformation<M> {
 		InetAddress getIP() { return ip; };
 		int getSenderPort() { return port; };

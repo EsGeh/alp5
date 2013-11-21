@@ -1,6 +1,5 @@
 package udp;
 
-import java.awt.TrayIcon.MessageType;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -10,8 +9,8 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import javax.activation.MailcapCommandMap;
 
+import udp.Message.Type;
 import udp.UDPIn.InputInformation;
 
 
@@ -54,7 +53,7 @@ public class Comm {
 	private static Comm pThis;
 	
 	private Helper helper;
-	private BlockingQueue<InputInformation<String>> mailbox;
+	//private BlockingQueue<InputInformation<String>> mailbox;
 	
 	
 	/* receives all messages
@@ -120,7 +119,24 @@ public class Comm {
 		}
 		
 		void spreadUpdate() {
-			// to do:
+			System.out.println("spread update...");
+			Message msg = new Message(
+					Type.UPDATE,
+					table.toString(),
+					in.getIP(),
+					in.getPort()
+				);
+			try {
+				for( OutputInfo out : outList ) {
+					out.out.send(
+							out.port,
+							msg.toString()
+						);
+				}
+			}
+			catch(SendException e) {
+				System.out.println("exception while spreading Update: " + e.getMessage());
+			}
 		}
 		
 		public Helper(
@@ -133,11 +149,13 @@ public class Comm {
 			try {
 				in = new UDPInImpl<String>();
 				in.start(inPort);
-				outAddressList = new ArrayList<UDPAddress>(neighbours);
-				outList = new ArrayList<UDPOut<String>>();
+				//outAddressList = new ArrayList<UDPAddress>(neighbours);
+				outList = new ArrayList<OutputInfo>();
 				for( UDPAddress addr : neighbours ) {
-					UDPOut<String> out = new UDPOutImpl<String>();
-					out.start(addr.getIP().getHostName());
+					OutputInfo outInfo = new OutputInfo(addr.getPort());
+					//UDPOut<String> out = new UDPOutImpl<String>();
+					outInfo.out.start(addr.getIP().getHostName());
+					outList.add(outInfo);
 				}
 			}
 			catch(SocketException | UnknownHostException e) {
@@ -159,17 +177,25 @@ public class Comm {
 		}
 		public void exit() {
 			in.stop();
-			for( UDPOut<String> out : outList) {
-				out.stop();
+			for( OutputInfo out : outList) {
+				out.out.stop();
 			}
 		}
 		
 		private UDPIn<String> in;
-		private List<UDPAddress> outAddressList;
-		private List<UDPOut<String>> outList;
+		//private List<UDPAddress> outAddressList;
+		private List<OutputInfo> outList;
 		
 		private RoutingTable table;
 		
 		private BlockingQueue<InputInformation<String>> mailbox;
+		
+		public class OutputInfo {
+			public OutputInfo(int port) {
+				this.port = port;
+			}
+			protected int port;
+			protected UDPOut<String> out;
+		}
 	}
 }

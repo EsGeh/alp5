@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 
@@ -34,6 +35,16 @@ public class UDPInImpl<M> implements UDPIn<M> {
 		catch(IOException | SerializingException e) {
 			throw new ReceiveException(e);
 		}
+	}
+	
+	@Override
+	public InetAddress getIP() {
+		return socket.getLocalAddress();
+	}
+
+	@Override
+	public int getPort() {
+		return socket.getLocalPort();
 	}
 	
 	private M fromByteRepr(byte[] data) throws SerializingException{
