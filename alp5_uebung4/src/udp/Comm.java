@@ -3,7 +3,6 @@ package udp;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -19,12 +18,12 @@ public class Comm {
 	public static void init(
 			String name,
 			int inPort, 	// <- this is necessary! if there are more processes on the same machine, they have to listen on different ports!
-			UDPAddress[] peers
+			Collection<UDPAddress> peers
 		) {
 		create();
 		pThis.helper = pThis.new Helper(
 				inPort,
-				Arrays.asList(peers)
+				peers
 			);
 		new Thread(pThis.helper).start();
 	}
