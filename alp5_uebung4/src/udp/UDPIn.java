@@ -11,13 +11,4 @@ public interface UDPIn<M> {
 	
 	int getPort();
 	InetAddress getIP();
-	
-	public class InputInformation<M> {
-		InetAddress getIP() { return ip; };
-		int getSenderPort() { return port; };
-		M getMessage() { return message; };
-		protected InetAddress ip;
-		protected int port;
-		protected M message;
-	}
 }

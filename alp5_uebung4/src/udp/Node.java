@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.io.IOException;
 
-import udp.UDPIn.InputInformation;
 
 public class Node {
 

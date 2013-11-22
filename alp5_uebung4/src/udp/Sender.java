@@ -31,7 +31,7 @@ public class Sender {
 			System.exit(1);
 		}
 		
-		Comm.init(name, inPort, peers);;
+		Comm.init(name, inPort, peers);
 		
 		// ask user to enter a string:
 		Scanner in = new Scanner(System.in);
@@ -41,5 +41,7 @@ public class Sender {
 		String message = in.next();
 		Comm.SEND(message, dest);
 		in.close();
+		Comm.exit();
+		System.out.println("done");
 	}
 }

@@ -23,14 +23,15 @@ public class UDPInImpl<M> implements UDPIn<M> {
 	@Override
 	public InputInformation<M> recv() throws ReceiveException {
 		try {
-			InputInformation<M> ret = new InputInformation<M>();
+			//InputInformation<M> ret = new InputInformation<M>();
 			byte[] inData = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(inData, 1024);
 			socket.receive(packet);
-			ret.ip = socket.getInetAddress();
-			ret.port = packet.getPort();
-			ret.message = fromByteRepr(packet.getData());
-			return ret;
+			return new InputInformation<M>(
+					socket.getInetAddress(),
+					packet.getPort(),
+					fromByteRepr(packet.getData())
+				);
 		}
 		catch(IOException | SerializingException e) {
 			throw new ReceiveException(e);

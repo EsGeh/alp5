@@ -8,6 +8,9 @@ public class RoutingEntry extends UDPAddress {
 		super(ip, port);
 		this.distance = distance;
 	}
+	public int getDistance() {
+		return distance;
+	}
 	protected int distance;
 
 }
