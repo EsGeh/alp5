@@ -35,11 +35,17 @@ public class Sender {
 		
 		// ask user to enter a string:
 		Scanner in = new Scanner(System.in);
-		System.out.print("dest: ");
-		String dest = in.next();
-		System.out.print("message: ");
-		String message = in.next();
-		Comm.SEND(message, dest);
+		while(true) {
+			System.out.print("dest (or exit): ");
+			String dest = in.next();
+			if( dest.equals("exit") )
+				break;
+			System.out.print("message (or exit): ");
+			String message = in.next();
+			if( message.equals("exit") )
+				break;
+			Comm.SEND(message, dest);
+		}
 		in.close();
 		Comm.exit();
 		System.out.println("done");

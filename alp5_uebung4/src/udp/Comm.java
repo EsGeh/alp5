@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 import udp.Message.Type;
@@ -34,8 +35,7 @@ public class Comm {
 	}
 	
 	public static void SEND(String message, String dest) {
-		
-		
+		pThis.helper.send(dest, message);
 	}
 	
 	public static String RECV() {
@@ -110,8 +110,6 @@ public class Comm {
 			} 
 			UDPOut<String> out = pThis.helper.outFromAddress.get(entry);
 			if( out == null ) {
-				//System.out.println("no output for node " + dest + ", aborting send... ");
-				//return;
 					out = new UDPOutImpl<String>();
 					try {
 						out.start(entry.getIP().getHostName());
@@ -254,7 +252,7 @@ public class Comm {
 			try {
 				in = new UDPInImpl<String>();
 				in.start(inPort);
-				outFromAddress = new HashMap<UDPAddress,UDPOut<String>>();
+				outFromAddress = new ConcurrentHashMap<UDPAddress,UDPOut<String>>();
 				for( UDPAddress addr : neighbours ) {
 					
 					//OutputInfo outInfo = new OutputInfo(addr.getPort());
