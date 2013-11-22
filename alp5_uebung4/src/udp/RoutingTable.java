@@ -1,10 +1,10 @@
 package udp;
 
 import java.net.InetAddress;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class RoutingTable extends HashMap<String,RoutingEntry>{
+public class RoutingTable extends ConcurrentHashMap<String,RoutingEntry>{
 	
 	public RoutingTable() {
 		super();
@@ -39,13 +39,46 @@ public class RoutingTable extends HashMap<String,RoutingEntry>{
 	public String toString() {
 		String ret = "";
 		for( Map.Entry<String, RoutingEntry> entry : this.entrySet()) {
-			ret = ret + entry.getKey() + " " + entry.getValue().getIP() + " " + entry.getValue().getPort() + " " + entry.getValue().getDistance() + "\n";
+			ret = ret + entry.getKey() + " " + entry.getValue().getIP().getHostAddress() + " " + entry.getValue().getPort() + " " + entry.getValue().getDistance() + "\n";
 		}
 		return ret; //ret.substring(0, ret.length() - 3);
 	}
 	
 	public boolean update( RoutingTable other ) {
-		return false;
+		//System.out.println("other routing table:");
+		//System.out.println( other.toString() );
+		boolean hasChanged = false;
+		for( Map.Entry<String, RoutingEntry> otherEntry : other.entrySet()) {
+			String name = otherEntry.getKey();
+			RoutingEntry otherValue = otherEntry.getValue();
+			RoutingEntry entry =  this.get(name);
+			if( entry != null ) {
+				if( otherValue.getDistance() + 1 < entry.getDistance() ) {
+					//update value:
+					this.put(
+							name,
+							new RoutingEntry(
+									otherValue.getIP(),
+									otherValue.getPort(),
+									otherValue.getDistance() + 1
+								)
+						);
+					hasChanged = true;
+				}
+			}
+			else {
+				this.put(
+						name,
+						new RoutingEntry(
+								otherValue.getIP(),
+								otherValue.getPort(),
+								otherValue.getDistance() + 1
+							)
+					);
+				hasChanged = true;
+			}
+		}
+		return hasChanged;
 	}
 	
 	/*public int getFreePort() {

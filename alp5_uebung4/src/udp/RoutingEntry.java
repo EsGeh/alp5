@@ -11,6 +11,10 @@ public class RoutingEntry extends UDPAddress {
 	public int getDistance() {
 		return distance;
 	}
-	protected int distance;
+	
+	public void setDistance(int distance) {
+		this.distance = distance;
+	}
+	private int distance;
 
 }

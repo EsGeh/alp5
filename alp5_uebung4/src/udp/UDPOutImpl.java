@@ -25,7 +25,7 @@ public class UDPOutImpl<M extends Serializable> implements UDPOut<M>
 	public void send(int port, M message) throws SendException {
 		try {
 			byte[] message_ = getByteRepr(message);
-			System.out.println("sending message to " + destAddress + ":" + port);
+			System.out.println("sending message to " + destAddress.getHostAddress() + ":" + port);
 			DatagramPacket packet = new DatagramPacket(
 					message_,
 					message_.length,

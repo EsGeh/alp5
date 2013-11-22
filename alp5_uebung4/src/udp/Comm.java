@@ -1,5 +1,6 @@
 package udp;
 
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collection;
@@ -34,24 +35,7 @@ public class Comm {
 	
 	public static void SEND(String message, String dest) {
 		
-		RoutingEntry entry = pThis.helper.table.get(dest);
-		if (entry == null) {
-			System.out.println("node " + dest + " not found in routing table, aborting send... ");
-			return;
-		} 
-		UDPOut<String> out = pThis.helper.outFromAddress.get(entry);
-		if( out == null ) {
-			System.out.println("no output for node " + dest + ", aborting send... ");
-			return;
-		}
-		try {
-			out.send(
-					entry.getPort(),
-					message
-				);
-		} catch (SendException e) {
-			System.out.println("exception while sending: " + e.getMessage());
-		}
+		
 	}
 	
 	public static String RECV() {
@@ -118,13 +102,47 @@ public class Comm {
 		}
 		
 		public void send(String dest, String message) {
+			RoutingEntry entry = table.get(dest);
+			if (entry == null) {
+				System.out.println("node " + dest + " not found in routing table, aborting send... ");
+				System.out.println(table.toString());
+				return;
+			} 
+			UDPOut<String> out = pThis.helper.outFromAddress.get(entry);
+			if( out == null ) {
+				//System.out.println("no output for node " + dest + ", aborting send... ");
+				//return;
+					out = new UDPOutImpl<String>();
+					try {
+						out.start(entry.getIP().getHostName());
+					}
+					catch(SocketException | UnknownHostException e) {
+						System.out.println("exception while adding new output: " + e.getMessage());
+					}
+					outFromAddress.put(entry,out);
+			}
+			try {
+				out.send(
+						entry.getPort(),
+						"NORMAL\n" + message
+					);
+			} catch (SendException e) {
+				System.out.println("exception while sending: " + e.getMessage());
+			}
 		}
 		
 		public void sendHello() {
 			System.out.println("sending hello...");
+			String ipThis = "";
+			try {
+				ipThis = InetAddress.getLocalHost().getHostAddress();
+			}
+			catch( UnknownHostException e) {
+				System.out.println("exception while creating HELLO: " + e.getMessage());
+			}
 			Message msg = new Message(
 					Type.HELLO,
-					name + "\n" + in.getIP().getHostAddress() + "\n" + Integer.toString(in.getPort()),
+					name + "\n" + ipThis + "\n" + Integer.toString(in.getPort()),
 					in.getIP(),
 					in.getPort()
 				);
@@ -217,6 +235,22 @@ public class Comm {
 			
 			table = new RoutingTable();
 			mailbox = new ArrayBlockingQueue<InputInformation<String>>(100);
+			
+			// enter myself into the routing table:
+			InetAddress me = null;
+			try {
+				me = InetAddress.getLocalHost();
+			}
+			catch(UnknownHostException e) {
+				System.out.println("exception while finding out my own ip address: " + e.getMessage());
+			}
+			table.put(name,
+					new RoutingEntry(
+						me,
+						inPort,
+						0
+					)
+				);
 			try {
 				in = new UDPInImpl<String>();
 				in.start(inPort);
