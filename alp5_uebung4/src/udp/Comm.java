@@ -4,7 +4,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -57,8 +56,8 @@ public class Comm {
 	
 	private static Comm pThis;
 	
+	// the helper process, receives any incoming messages, filters out and deals with meta messages, and therefore hides the protocol
 	private Helper helper;
-	//private BlockingQueue<InputInformation<String>> mailbox;
 	
 	
 	/* receives all messages
@@ -75,7 +74,7 @@ public class Comm {
 				InputInformation<String> inputInfo = null;
 				try {
 					inputInfo = in.recv();
-					System.out.println("helper received something!");
+					//System.out.println("helper received something!");
 				}
 				catch(ReceiveException e) {
 					System.out.println("exception while receiving: " + e.getMessage());
@@ -102,23 +101,28 @@ public class Comm {
 		}
 		
 		public void send(String dest, String message) {
+			
+			// lookup dest in the routing table:
 			RoutingEntry entry = table.get(dest);
 			if (entry == null) {
 				System.out.println("node " + dest + " not found in routing table, aborting send... ");
 				System.out.println(table.toString());
 				return;
-			} 
+			}
+			// check if we have already a socket to the dest:
 			UDPOut<String> out = pThis.helper.outFromAddress.get(entry);
 			if( out == null ) {
-					out = new UDPOutImpl<String>();
-					try {
-						out.start(entry.getIP().getHostName());
-					}
-					catch(SocketException | UnknownHostException e) {
-						System.out.println("exception while adding new output: " + e.getMessage());
-					}
-					outFromAddress.put(entry,out);
+				// if not, create one, run it, and add it to the list of output sockets:
+				out = new UDPOutImpl<String>();
+				try {
+					out.start(entry.getIP().getHostName());
+				}
+				catch(SocketException | UnknownHostException e) {
+					System.out.println("exception while adding new output: " + e.getMessage());
+				}
+				outFromAddress.put(entry,out);
 			}
+			// send the message as a non-meta message:
 			try {
 				out.send(
 						entry.getPort(),
@@ -202,7 +206,7 @@ public class Comm {
 		}
 		
 		void spreadUpdate() {
-			System.out.println("spread update...");
+			//System.out.println("spread update...");
 			String content = table.toString();
 			Message msg = new Message(
 					Type.UPDATE,
@@ -249,6 +253,7 @@ public class Comm {
 						0
 					)
 				);
+			// create sockets to all peers:
 			try {
 				in = new UDPInImpl<String>();
 				in.start(inPort);
@@ -266,18 +271,6 @@ public class Comm {
 			}
 		}
 		
-		boolean isHello(String msg) {
-			String []lines = msg.split("\n");
-			return (
-					lines.length > 0 && lines[0] == "hello"
-				);
-		}
-		boolean isUpdate(String msg) {
-			String []lines = msg.split("\n");
-			return (
-					lines.length > 0 && lines[0] == "hello"
-				);
-		}
 		public void exit() {
 			in.stop();
 			for( UDPOut<String> out : outFromAddress.values()) {
@@ -285,23 +278,20 @@ public class Comm {
 			}
 		}
 		
+		// the mnemonic name for this node:
 		private String name;
 		
+		// socket to receive incoming messages
 		private UDPIn<String> in;
-		//private List<UDPAddress> outAddressList;
-		//private List<OutputInfo> outList;
 		
+		// name -> ( udpAddr , distance )
 		private RoutingTable table;
+		
+		// sockets to all peers, indexed by their address ( udpAddr -> UDPOut )
 		private Map<UDPAddress,UDPOut<String>> outFromAddress;
 		
+		// mailbox for all (non-meta) messsages received:
 		private BlockingQueue<InputInformation<String>> mailbox;
 		
-		/*public class OutputInfo {
-			public OutputInfo(int port) {
-				this.port = port;
-			}
-			protected int port;
-			protected UDPOut<String> out;
-		}*/
 	}
 }
