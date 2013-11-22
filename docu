@@ -1,2 +1,29 @@
-Aufgabe 1)
-a)
+Aufgabe (1)
+
+a)Die Datei GenericProcess.Java implementiert die Aufgabenstellung.
+
+b)Mit Send werden Messages an die Peers verschickt. Mit Recv wird eine an den Prozess verschickte Nachricht ausgegeben.
+Das Problem mit der Go-Implementierung ist as Fehlen von Generic Types in Go. Daher ist man gezwungen mit  Any jeden Datentyp
+zuzulassen und später passend zu casten. Dies ist umständlicher als in Java und birgt zudem Sicherheitsrisiken, falls man
+nicht alle Prozesse selbst kontrolliert und "falsche" Datentypen verschickt werden, die beim Casten dann für Probleme sorgen, die
+gegebenenfalls nicht bemerkt werden oder - besser - Laufzeitfehler verursachen.
+Siehe auch: die für d) implementierten Tests!
+
+c)Die in Node.Java implementierten Nodes haben über UDPInImpl.java und UDPOutImpl.java wie in b) Zugriff auf send- und recv-Funktionen,
+die für den nicht an der Implementierung interessierten Nutzer wie erwartet funktionieren. Das Aufsetzen eines Systems mehrerer Nodes
+kann aus dem Test (siehe Aufgabenteil d!) abgelesen werden.
+
+d)Wir haben alle drei Tests implementiert! Im Go-Ordner befindet sich im Test-Ordner eine Test-Datei. Im UDP-Ordner findet sich
+eine TestUDP.Java. Die Lösung aus a) wird in TestProcess.Java im Process-Ordner getestet.
+
+--
+
+Aufgabe (2)
+
+a) Die Tabelle hat 4 Spalten. In der ersten Spalte werden die Namen der anderen Prozesse eingetragen. In der zweiten Spalte steht die
+Adresse des jeweiligen anderen Prozesses, an den eine Nachricht geschickt werden muss, um den gewünschten Prozess dieser Zeile zu
+erreichen. In der dritten Spalte stehen die entsprechenden Ports. In der vierten Spalte steht der Abstand
+des aktuell genutzen Übertragungsweges des Prozesses zu dem Prozess in der Tabelle.
+Um zu unterscheiden, ob eine Nachricht eine "Message" ist, die einen Inhalt übermitteln soll, oder ob eine Nachricht die Gestalt des
+Systems der Prozesse betrifft, unterscheiden wir zwischen gewöhnlichen und Meta-Nachrichten anhand eines Headers. Erstere Nachrichten
+sind die forwards, letztere die updates.
