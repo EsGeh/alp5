@@ -27,3 +27,22 @@ des aktuell genutzen Übertragungsweges des Prozesses zu dem Prozess in der Tabe
 Um zu unterscheiden, ob eine Nachricht eine "Message" ist, die einen Inhalt übermitteln soll, oder ob eine Nachricht die Gestalt des
 Systems der Prozesse betrifft, unterscheiden wir zwischen gewöhnlichen und Meta-Nachrichten anhand eines Headers. Erstere Nachrichten
 sind die forwards, letztere die updates.
+Bei einem forward wird die Nachricht an die IP-Adresse weitergegeben, die hinter dem Namen, an den die Nachricht
+adressiert ist, aufgeführt ist. Der Prozess mit der entsprechenden IP-Adresse kann dann entweder gleich dem adressierten Prozess sein
+oder aber ein Prozess zwischen Absender und Empfänger. In diesem Fall muss die Nachricht mit Hilfe der Tabelle des Übermittlers weiter
+in Richtung Empfänger übertragen werden. Beim nächsten durch die IP-Adresse bestimmten Prozess findet wieder das gleiche statt, bis die
+Nachricht letztendlich den Empfänger erreicht.
+Kommt ein neuer Prozess in das System, ist es notwendig die Routing-Tabellen zu verändern. Einerseits muss der neue Prozess adressiert
+werden können von allen Prozessen, andererseits könnten neue kürzeste Distanzen auftreten und das Routing verändern. Ein neuer Prozess
+schickt an alle per IP bekannten Nachbarn eine Initialnachricht. Diese enthält den Namen des neuen Prozesses und fordert die anderen
+Prozesse auf, den neuen Prozess zu registrieren. Die benachbarten Prozesse aktualisieren ihre Routingtabellen naheliegend mit Adresse,
+Distanz und Namen des neuen Prozesses(die Distanz ist selbstverständlich 1). Diese benachbarten Prozesse können also den neuen Prozess
+direkt nun erreichen. Nun werden von allen Prozessen, also auch dem neuen, solange update-Nachrichten verschickt, solange die
+Routing-Tabellen durch die Nachrichten anderer Prozesse verändert werden. Eine Veränderung findet immer dann statt, wenn ein neuer
+Prozess in eine Routing-Tabelle eingetragen wird oder aber eine der IP-Adressen(wegen eines neuen kürzesten Wegen) sich ändert und
+mittelbar auch bei anderen Prozessen Änderungen des kürzesten Weges auftreten könnten. Finden irgendwann keine Änderungen der Tabellen
+mehr statt, weil alle neuen Informationen einmal durch das System übertragen wurden, hören die update-Messages auf und es tritt keine
+"Dauerschleife" von update-Nachrichten auf.
+
+b+c)Die geforderten Dateien sind vorhanden und benutzbar.
+
