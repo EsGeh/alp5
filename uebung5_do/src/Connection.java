@@ -68,10 +68,10 @@ public class Connection implements Runnable {
 		// connect the io from the client to console:
 		Scanner applicationOut = new Scanner(p.getInputStream());
 		Scanner applicationErrOut = new Scanner(p.getErrorStream());
-		Thread appToOut = new Thread( new InToOut(applicationOut, out));
-		Thread appErrToOut = new Thread( new InToOut(applicationErrOut, out));
-		appToOut.start();
-		appErrToOut.start();
+		InToOut appToOut = new InToOut(applicationOut, out);
+		InToOut appErrToOut = new InToOut(applicationErrOut, out);
+		new Thread(appToOut).start();
+		new Thread(appErrToOut).start();
 		
 		PrintStream toApplication = new PrintStream( p.getOutputStream() );
 		String current = null;
@@ -80,6 +80,11 @@ public class Connection implements Runnable {
 			toApplication.flush();
 		}
 		log.info("exit session");
+		appToOut.terminate();
+		appErrToOut.terminate();
+		
+		/*applicationOut.close();
+		applicationErrOut.close();*/
 		
 		// close connection:
 		try {
@@ -93,12 +98,18 @@ public class Connection implements Runnable {
 	public void createLocalFile(String filename) throws IOException, InterruptedException {
 		FileOutputStream file = new FileOutputStream(filename);
 		PrintStream printFile = new PrintStream(file);
-		String EOF = in.nextLine();
+		//String EOF = in.nextLine();
+		int countMax = Integer.parseInt(in.nextLine());
+		
 		String current = "";
-		while( ! (current = in.nextLine()).equals(EOF) ) {
+		int countBytes = 0;
+		while( countBytes < countMax ) {
+			current = in.nextLine();
 			printFile.println( current );
+			countBytes += current.length() + 1;
 		}
 		printFile.close();
+		out.println("ok");
 	}
 	
 	public Process runScript(String application, String filename) throws IOException {
@@ -126,36 +137,4 @@ public class Connection implements Runnable {
 	
 	private Scanner in;
 	private PrintStream out;
-	
-	public class InToOut implements Runnable {
-		public InToOut(Scanner in, PrintStream out) {
-			this.in = in;
-			this.out = out;
-			this.run = true;
-		}
-		
-		public void stop() {
-			run = false;
-		}
-		
-		public void maybeThrow () throws IOException {
-			if( exception != null)
-				throw exception;
-		}
-	
-		public void run() {
-			String currentLine = null; 
-			while( run ) {
-				currentLine = in.nextLine();
-				//System.out.println("rec to redir");
-				out.println( currentLine );
-				out.flush();
-			}
-		}
-		private Scanner in;
-		private PrintStream out;
-		private IOException exception;
-		private boolean run;
-			
-	};
 }
