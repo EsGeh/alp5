@@ -26,7 +26,7 @@ public class InToOut implements Runnable {
 		try {
 			while( goOn ) {
 				if( in.hasNext() ) {
-					System.out.println("has");
+					//System.out.println("has");
 					currentLine = in.nextLine();
 					out.println( currentLine );
 					out.flush();

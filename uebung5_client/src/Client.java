@@ -80,7 +80,7 @@ public class Client {
 			}
 		}
 		out.print(app);
-		if( file != null ) {
+		if( file != null ) { // syntax: <app> <file>
 			try {
 				out.println(" " + filename);
 				out.println(file.length());
@@ -95,6 +95,9 @@ public class Client {
 			catch(FileNotFoundException e) {
 				System.out.println("fatal error");
 			}
+		}
+		else { // syntax: <app>
+			out.print("\n");
 		}
 		// receive ok:
 		String fromServer = in.nextLine();

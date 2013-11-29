@@ -1,0 +1,62 @@
+
+
+2. a) Das Protokoll basiert auf dem Austausch von Textnachrichten über TCP.
+	Der Server erwartet eingehende Verbindungen auf Port 8000
+	Der Dialog sieht folgendermaßen aus:
+		Client: verbindet sich
+		Server: <name des servers>
+		Server: <name der autoren>
+		Client: <command>
+	Der <command> beeinflusst den weiteren verlauf des Dialogs.
+	1. Variante: <command> ist der name einer Anwendung <app>, die auf dem Server installiert ist (z.b. ghci):
+		Client: <app>
+		Server: "ok"
+	2. Variante: <command> ist der Name einer Anwendung <app> (z.B. ghci), mit einer Datei <file> als Parameter, also z.B. "ghci test.hs"
+		Client: <app> <file>
+		Client: größe der Datei, als Zeichenkette codiert
+		Client: sendet den Inhalt der Datei zeilenweise.
+		Server: "ok"
+	Ab jetzt erhält der Client die Ausgabe des auf dem Server gestarteten Programms. Handelt es sich bei dem Programm um eine interaktive Anwendung, so werden weitere Nachrichten des Clients als Eingaben für dieses Programm interpretiert, und an das auf dem Server laufende Programm weitergeleitet.
+	Beenden des Dialogs:
+		Client: ":q"
+
+Anmerkung: bis jetzt wird als Anwendung nur ghci unterstützt. Für andere Kommandos ist das Verhalten nicht spezifiziert!
+
+2. b) Man öffnet 2 Konsolen, in der einen wird der Server gestartet, in der anderen netcat:
+	Server-Terminal:
+		$ cd uebung5_do/bin
+		$ java Server
+			[ ...log ausgaben des Servers... ]
+	Netcat-Terminal:
+		$ nc localhost 8000
+			do server
+			Authors: André Röhrig, Samuel Gfrörer
+		$ ghci
+			GHCi, version 7.4.2: http://www.haskell.org/ghc/  :? for help
+			Loading package ghc-prim ... linking ... done.
+			Loading package integer-gmp ... linking ... done.
+			Loading package base ... linking ... done.
+		$ :t id
+			Prelude> id :: a -> a
+		$ :q
+2. c) Man öffnet 2 Konsolen, in der einen wird der Server gestartet, in der anderen der Client. Im folgenden Beispiel, wird das auf dem Client existierende Skript "fib.hs" (./exampleScript/fib.hs) genutzt, um auf dem Server die ersten 5 Fibonnacci-Zahlen zu berechnen:
+	Server-Terminal:
+		(siehe 2. b)
+	Client-Terminal:
+		$ cd uebung5_client/bin
+		$ java Client
+		please enter the server to connect to: 
+		ip or hostname: localhost
+		server name: do server
+		authors: Authors: André Röhrig, Samuel Gfrörer
+		enter command to execute (syntax: <app> [<file>]):
+		  ghci ../../exampleScript/fib.hs
+			GHCi, version 7.4.2: http://www.haskell.org/ghc/  :? for help
+			Loading package ghc-prim ... linking ... done.
+			Loading package integer-gmp ... linking ... done.
+			Loading package base ... linking ... done.
+			[1 of 1] Compiling Main             ( test.hs, interpreted )
+			Ok, modules loaded: Main.
+		$ map fib [1..5]
+			*Main> [1,2,3,5,8]
+		$ :q

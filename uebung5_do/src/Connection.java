@@ -63,6 +63,7 @@ public class Connection implements Runnable {
 			sendResult(resultType, result);
 			return;
 		}
+		out.println("ok");
 		log.info("done executing");
 		
 		// connect the io from the client to console:
@@ -109,7 +110,6 @@ public class Connection implements Runnable {
 			countBytes += current.length() + 1;
 		}
 		printFile.close();
-		out.println("ok");
 	}
 	
 	public Process runScript(String application, String filename) throws IOException {
