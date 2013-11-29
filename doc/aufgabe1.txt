@@ -1,0 +1,30 @@
+Aufgabe 1)
+a)
+
+monitor ResourceManagement<R> {             
+        int maxavail = ...;    // number of resources
+        ... // bookkeeping data, initialization
+        list e; //hier werden die request sortiert gespeichert werden, die warten
+        int freeresources; 
+public  Set<R> request(int count) when count ≤ maxavail { // ask for 'count' resources
+        ... // bookkeeping
+        bool granted = False;
+        while true{
+          if freeresources >= count{
+            freeresources -= count;
+            granted = True;
+          }
+          else{
+            e.append{this};  //dieser request wird ans Ende der Liste angefügt
+            e.sort; //die Liste wird so sortiert, dass der kleinste Request am Beginn steht
+            wait();
+          }
+          if granted then return;
+          }
+        }
+public  void release(Set<R> res) {  // release previously acquired resources
+        ... // bookkeeping
+        freeresource += count;
+        wake(e.first);
+        }
+}
