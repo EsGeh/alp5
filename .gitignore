@@ -1,6 +1,5 @@
 .*
 bin/
-pkg
 .classpath
 .metadata
 .project
