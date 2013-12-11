@@ -6,10 +6,13 @@ public class Filter {
 	
 	/**
 	 * @param args
+	 * usage: Filter (+|-) language [-c host port] [-s]
 	 */
 	public static void main(String[] args) {
 		Filter pThis = new Filter();
 		pThis.readParams(args);
+		
+		// check2 usage: check 
 		pThis.exec();
 	}
 	
@@ -61,6 +64,9 @@ public class Filter {
 				currentParam++;
 				port = Integer.parseInt( args[currentParam] );
 				currentParam++;
+			}
+			if( args.length < 6 ) {
+				return;
 			}
 			if( args[currentParam].equals("-s")) {
 				isServer = true;
