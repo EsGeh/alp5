@@ -26,8 +26,8 @@ public class Filter {
 	
 	public void exec() {
 		// syntax: check2 [host@server:]DICT
-		String command = "ls";
-		//String command = "check2 " + language + " " + ((mode==Mode.OUTPUT_VALID) ? "+" : "-");
+		//String command = "ls";
+		String command = "./../dist/build/check2/check2 " + language + " " + ((mode==Mode.OUTPUT_VALID) ? "+" : "-");
 		Process p = null;
 		try {
 			p = Fork.fork(command);
@@ -37,9 +37,9 @@ public class Filter {
 		}
 		
 		try {
-			/*InToOut inToProg = new InToOut(new Scanner(System.in), new PrintStream(p.getOutputStream()));
+			InToOut inToProg = new InToOut(new Scanner(System.in), new PrintStream(p.getOutputStream()));
 			Thread inToProgThread = new Thread(inToProg);
-			inToProgThread.start();*/
+			inToProgThread.start();
 		
 			InToOut progToOut = new InToOut(new Scanner(p.getInputStream()), System.out);
 			InToOut progErrToOut = new InToOut(new Scanner(p.getErrorStream()), System.out);
@@ -51,8 +51,8 @@ public class Filter {
 			p.waitFor();
 			//System.out.println("program exited");
 			
-			/*progToOutThread.join();
-			progErrToOutThread.join();*/
+			progToOutThread.join();
+			progErrToOutThread.join();
 			
 			//p.waitFor();
 		} catch(InterruptedException e) {

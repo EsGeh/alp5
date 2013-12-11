@@ -32,6 +32,7 @@ public class InToOut implements Runnable {
 					out.flush();
 				}
 				else {
+					out.close();
 					break;
 				}
 				//Thread.sleep(500);

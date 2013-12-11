@@ -24,7 +24,7 @@ public class Fork {
     }
 
     public boolean isremote(String input){
-        if(input.contains(":")){
+        if(input.split(" ")[0].contains(":")){
             return true;
         }
         else{
