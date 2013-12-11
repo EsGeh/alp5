@@ -2,8 +2,8 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                common
-version:             0.1.0.0
-synopsis:            things used by check and spellcheck
+version:             0.2.0.0
+synopsis:            things used by check2
 -- description:         
 -- license:             
 license-file:        LICENSE

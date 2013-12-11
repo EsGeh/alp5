@@ -18,11 +18,13 @@ main = do
 	-- # TODO: add error handling
 
 	putStrLn "processing text..."
-	text <- textFromFile localTextFile
-	dict <- dictFromFile localDictFile
-	let range = checkParams programParams
+	text <- getContents
+	--text <- textFromFile localTextFile
+	dict <- readFile localDictFile
+	--let range = checkParams programParams
 
-	let textIsValid = check range dict text 
+	let textIsValid = check dict text 
+	--let textIsValid = check range dict text 
 	--putStrLn $ show $ textIsValid
 
 	case textIsValid of
@@ -35,8 +37,8 @@ data CheckResult = CheckResult {
 }
 type Word = String
 
-check range dict text =
-	check' (splitAtNewLine dict) $ splitRegex separators $ cutFromText range text
+check dict text =
+	check' (splitAtNewLine dict) $ splitRegex separators {-$ cutFromText range-} text
 	where
 		-- this regEx should match one ore more occurences of any character, that is not a letter or a number
 		separators = mkRegex "[^[:alnum:]]+"
@@ -66,26 +68,35 @@ findWordInDic dict word = case elem word dict of
 	_ -> Just word
 
 
-textFromFile textFile = readFile textFile
-dictFromFile dictFile = readFile dictFile
+--textFromFile textFile = readFile textFile
+--dictFromFile dictFile = readFile dictFile
 
 --
 calcProgramParams args = case args of
-	(textFile : dictFile : from : to : []) -> ProgramParams {
+	(dictFile : modeString : []) -> ProgramParams {
 		fetchParams = fetchParams,
-		checkParams = (startPos,endPos - startPos) }
+		mode = mode' }
+		--checkParams = (startPos,endPos - startPos) }
 		where
-			(startPos, endPos) = (read from, read to)
-			fetchParams = FetchParams {
-				textFileInfo = fileInfoFromString textFile,
+			--(startPos, endPos) = (read from, read to)
+			fetchParams = fileInfoFromString dictFile
+			{-fetchParams = FetchParams {
+				--textFileInfo = fileInfoFromString textFile,
 				dictFileInfo = fileInfoFromString dictFile
-			}
+			}-}
+			mode' = case modeString of
+				"+" -> PrintValid
+				"-" -> PrintInvalid
+				_ -> error $ "invalid mode \"" ++ modeString ++ "\""
 			
-	_ -> error "usage: check [user@server:]FILE [user@server:]DICT FROM TO"
+	_ -> error "usage: check2 [user@server:]DICT (+|-)"
 
 data ProgramParams = ProgramParams {
-	fetchParams :: FetchParams,
-	checkParams :: CheckParams
+	fetchParams :: FileInfo,
+	--checkParams :: CheckParams
+	mode :: Mode
 }
 
-type CheckParams = (Int,Int)
+data Mode = PrintValid | PrintInvalid
+
+--type CheckParams = (Int,Int)

@@ -10,7 +10,13 @@ localDictFile = "/tmp/dict"
 
 -- | copy files from the server, and copy it to
 --   localTextFile and localDictFile
-fetchFiles args = do
+fetchFiles fileInfo = do
+	dictFileExists <- doesFileExist localDictFile
+	fetchDictReturn <- if dictFileExists then return Nothing else do
+		putStrLn $ "fetching dictionary... " ++ (show $ fileInfo)
+		fetchFile fileInfo localDictFile
+	return $ fetchDictReturn
+{-fetchFiles args = do
 	textFileExists <- doesFileExist localTextFile 
 	dictFileExists <- doesFileExist localDictFile
 	fetchTextReturn <- if textFileExists then return Nothing else do
@@ -23,6 +29,7 @@ fetchFiles args = do
 		fetchTextReturn = fetchTextReturn,
 		fetchDictReturn = fetchDictReturn
 	}
+-}
 
 fetchFile fileInfo dest = do
 		exitCodeText <- system $ "rsync -au " ++ scpParam fileInfo ++ " " ++ dest
@@ -36,15 +43,15 @@ scpParam fileInfo = case serverInfo fileInfo of
 		Nothing -> server serverInfo ++ ":" ++ path fileInfo
 		Just userName -> userName ++ "@" ++ server serverInfo ++ ":" ++ path fileInfo
 
-data FetchFilesReturn = FetchFilesReturn {
+{-data FetchFilesReturn = FetchFilesReturn {
 	fetchTextReturn :: FetchFileReturn,
 	fetchDictReturn :: FetchFileReturn
-}
+}-}
 
-data FetchParams = FetchParams {
+{-data FetchParams = FetchParams {
 	textFileInfo :: FileInfo,
 	dictFileInfo :: FileInfo
-}
+}-}
 
 type FetchFileReturn = Maybe ErrorMsg
 type ErrorMsg = String
