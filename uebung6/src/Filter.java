@@ -2,7 +2,10 @@ import java.io.IOException;
 
 
 public class Filter {
-	enum Mode { OUTPUT_VALID, OUTPUT_INVALID };
+	enum Mode {
+		OUTPUT_VALID, // "+" : output words found in the dictionary
+		OUTPUT_INVALID // "-" : output words NOT found in the dictionary
+	};
 	
 	/**
 	 * @param args
@@ -20,10 +23,12 @@ public class Filter {
 	}
 	
 	public void exec() {
+		// syntax: check2 [host@server:]DICT
+		String command = "check2 " + language + " " + ((mode==Mode.OUTPUT_VALID) ? "+" : "-");
 		try {
-			Process p = Runtime.getRuntime().exec("split");
+			Process p = Fork.fork(command);
 		} catch (IOException e) {
-			System.out.println( e.getMessage() );
+			System.out.println( "exception while executing \"" + command + "\" :\n" + e.getMessage() );
 		}
 	}
 	
@@ -44,7 +49,8 @@ public class Filter {
 				throw new Exception("invalid syntax");
 			}
 			mode = plusMinus.equals("+") ? Mode.OUTPUT_VALID : Mode.OUTPUT_INVALID;
-			String language_ = args[1];
+			language = args[1];
+			/*String language_ = args[1];
 			if( !(language_.equals("en") || language_.equals("de")) ) {
 				throw new Exception("language not supported \"" + language_ + "\"");
 			}
@@ -52,7 +58,7 @@ public class Filter {
 				language_ = "en";
 			} else if( language_.equals("de") ) {
 				language_ = "de";
-			}
+			}*/
 			if( args.length < 3) {
 				return;
 			}
