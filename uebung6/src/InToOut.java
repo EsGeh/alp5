@@ -31,10 +31,13 @@ public class InToOut implements Runnable {
 					out.println( currentLine );
 					out.flush();
 				}
-				Thread.sleep(500);
+				else {
+					break;
+				}
+				//Thread.sleep(500);
 			}
-			System.out.println("InToOut terminated!");
-			System.out.flush();
+			/*System.out.println("InToOut terminated!");
+			System.out.flush();*/
 		}
 		catch(Exception e) {
 			System.out.println("InToOut interrupted");
