@@ -17,18 +17,19 @@ main = do
 	fetchFiles $! fetchParams $! programParams
 	-- # TODO: add error handling
 
-	putStrLn "processing text..."
+	--putStrLn "processing text..."
 	text <- getContents
 	--text <- textFromFile localTextFile
 	dict <- readFile localDictFile
 	--let range = checkParams programParams
+	let mode' = mode programParams
 
-	let textIsValid = check dict text 
+	let textIsValid = check mode' dict text 
 	--let textIsValid = check range dict text 
 	--putStrLn $ show $ textIsValid
 
 	case textIsValid of
-		CheckResult [] -> putStrLn "ok"
+		CheckResult [] -> return () --putStrLn "ok"
 		CheckResult words -> mapM_ print words
 
 
@@ -37,8 +38,8 @@ data CheckResult = CheckResult {
 }
 type Word = String
 
-check dict text =
-	check' (splitAtNewLine dict) $ splitRegex separators {-$ cutFromText range-} text
+check mode dict text =
+	check' mode (splitAtNewLine dict) $ splitRegex separators {-$ cutFromText range-} text
 	where
 		-- this regEx should match one ore more occurences of any character, that is not a letter or a number
 		separators = mkRegex "[^[:alnum:]]+"
@@ -58,14 +59,18 @@ splitAtNewLine string =
 	where
 		isLineEnding c = (c =='\r') || (c == '\n')
 
-check' dict [] = CheckResult $ []
-check' dict (firstWord:restWords) = case findWordInDic dict firstWord of
-	Nothing -> check' dict restWords
-	Just word -> CheckResult $ word : (getWordList $ check' dict restWords)
+check' mode dict [] = CheckResult $ []
+check' mode dict (firstWord:restWords) = case mode of
+	PrintValid -> case findWordInDic dict firstWord of
+		True -> CheckResult $ firstWord : getWordList (check' mode dict restWords)
+		False -> check' mode dict restWords
+	PrintInvalid -> case findWordInDic dict firstWord of
+		True -> check' mode dict restWords
+		False -> CheckResult $ firstWord : getWordList (check' mode dict restWords)
 
-findWordInDic dict word = case elem word dict of
+findWordInDic dict word = elem word dict {-case elem word dict of
 	True -> Nothing
-	_ -> Just word
+	_ -> Just word-}
 
 
 --textFromFile textFile = readFile textFile
