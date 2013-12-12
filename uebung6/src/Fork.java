@@ -16,7 +16,7 @@ public class Fork {
         if (!pThis.isremote(input)) {
             p = Runtime.getRuntime().exec(input);
         }
-        else if(pThis.isremote(input)){
+        else if(pThis.isremote(input)) {
             p = Runtime.getRuntime().exec("ssh "+input.replace(":"," "));
         }
         return p;

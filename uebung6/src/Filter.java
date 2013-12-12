@@ -66,13 +66,13 @@ public class Filter {
 	public void exec() {
 		// syntax: check2 [host@server:]DICT
 		//String command = "ls";
-		String command = "./../dist/build/check2/check2 " + language + " " + ((mode==Mode.OUTPUT_VALID) ? "+" : "-");
+		String command = "./dist/build/check2/check2 " + language + " " + ((mode==Mode.OUTPUT_VALID) ? "+" : "-");
 		Process p = null;
 		try {
 			p = Fork.fork(command);
-			
 		} catch (IOException e) {
 			System.out.println( "exception while executing \"" + command + "\" :\n" + e.getMessage() );
+			return;
 		}
 		
 		try {

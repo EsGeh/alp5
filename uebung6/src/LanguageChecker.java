@@ -1,0 +1,109 @@
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
+
+
+public class LanguageChecker {
+
+	public LanguageChecker() {
+	}
+
+	/**
+	 * @param args
+	 * LanguageChecker file host1 host2
+	 */
+	public static void main(String[] args) {
+		if( args.length != 6) {
+			System.out.println("syntax: LanguageChecker localIP germanDict englishDict filename host1 host2");
+			return;
+		}
+		String localIP = args[0];
+		String germanDict = args[1]; String englishDict = args[2];
+		String filename = args[3];
+		String host1 = args[4]; String host2 = args[5];
+		
+		LanguageChecker pThis = new LanguageChecker();
+		try {
+			pThis.connect(filename);
+		}
+		catch(IOException e) {
+			System.out.println("exception while connecting: " + e.getMessage());
+			return;
+		}
+		try {
+			pThis.exec(localIP, germanDict,englishDict, host1, host2);
+		}
+		catch(Exception e) {
+			System.out.println("exception while executing: " + e.getMessage());
+			return;
+		}
+		
+		//String host2 = args[3]; int port2 = Integer.parseInt(args[4]);
+	}
+	
+	public void connect(String filename) throws IOException {
+		inFromFile = new Scanner(new FileInputStream(filename));
+	}
+	
+	public void exec(String localIP, String germanDict, String englishDict, String host1, String host2) throws Exception {
+		// -s : input from tcp
+		// -c host port : output to tcp
+		
+		String commandEnglish1 = host1 + ":" + "java -classpath bin Filter + " + englishDict + " -s -c " + localIP + " 8000";
+		System.out.println("command: " + commandEnglish1);
+		Process pEnglish1 = null;
+		try {
+			System.out.println("fork...");
+			pEnglish1 = Fork.fork(  commandEnglish1);
+			System.out.println("fork done");
+		}
+		catch(IOException e) {
+			throw new Exception("exception while forking remote process: " + e.getMessage());
+		}
+		Scanner errFromEnglish1 = new Scanner(pEnglish1.getErrorStream());
+		System.out.println("scanner created");
+		int portEnglish1 = -1;
+		try {
+			/*if( !errFromEnglish1.hasNext()) {
+				throw new Exception("bla");
+			}*/
+			String errFromEngl1 = errFromEnglish1.nextLine();
+			System.out.println("from stderr: " + errFromEngl1);
+			//portEnglish1 = errFromEnglish1.nextInt();
+		}
+		catch(Exception e) {
+			errFromEnglish1.close();
+			throw new Exception(" exception while receiving from remote err: " + e.getMessage());
+		}
+		System.out.println("port: " + portEnglish1);
+		
+		Socket socket = null;
+		Scanner fromEngl1 = null;
+		try {
+			socket = new Socket(host1, portEnglish1);
+			fromEngl1 = new Scanner(socket.getInputStream());
+		}
+		catch(IOException e) {
+			errFromEnglish1.close();
+			throw new Exception("exception while trying to connect to remote process: " + e.getMessage());
+		}
+		
+		InToOut engl1ToOut  = new InToOut(fromEngl1, System.out);
+		Thread engl1ToOutThread = new Thread(engl1ToOut);
+		engl1ToOutThread.start();
+		
+		errFromEnglish1.close();
+		socket.close();
+		//System.out.println("port of engl1: " + portEnglish1);
+	}
+	
+	/*private InetAddress getOwnIP() throws UnknownHostException {
+		return InetAddress.getByName("localhost");
+		//return InetAddress.getLocalHost();
+	}*/
+	
+	private Scanner inFromFile;
+}
