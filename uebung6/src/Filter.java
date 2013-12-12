@@ -1,5 +1,9 @@
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Scanner;
 
 
@@ -17,11 +21,42 @@ public class Filter {
 		Filter pThis = new Filter();
 		pThis.readParams(args);
 		
+		try {
+			pThis.init();
+		}
+		catch(IOException e) {
+			System.out.println("exception while initializing: " + e.getMessage());
+			return;
+		}
+		
 		// check2 usage: check 
 		pThis.exec();
 	}
 	
 	public Filter() {
+	}
+	
+	public void init() throws IOException {
+		if( isServer ) {
+			serverSocket = new ServerSocket(0);
+			int port = serverSocket.getLocalPort();
+			System.err.print(port); System.err.flush();
+			//SocketAddress addr = new InetSocketAddress("localhost", port);
+			//serverSocket.bind(addr);
+			listen = serverSocket.accept();
+			in = new Scanner(listen.getInputStream());
+		}
+		else {
+			in = new Scanner(System.in);
+		}
+		
+		if( isClient) {
+			clientSocket = new Socket(host,port);
+			out = new PrintStream(clientSocket.getOutputStream());
+		}
+		else {
+			out = System.out;
+		}
 	}
 	
 	public void exec() {
@@ -37,12 +72,12 @@ public class Filter {
 		}
 		
 		try {
-			InToOut inToProg = new InToOut(new Scanner(System.in), new PrintStream(p.getOutputStream()));
+			InToOut inToProg = new InToOut(in, new PrintStream(p.getOutputStream()));
 			Thread inToProgThread = new Thread(inToProg);
 			inToProgThread.start();
 		
-			InToOut progToOut = new InToOut(new Scanner(p.getInputStream()), System.out);
-			InToOut progErrToOut = new InToOut(new Scanner(p.getErrorStream()), System.out);
+			InToOut progToOut = new InToOut(new Scanner(p.getInputStream()), out);
+			InToOut progErrToOut = new InToOut(new Scanner(p.getErrorStream()), out);
 			Thread progToOutThread = new Thread(progToOut);
 			Thread progErrToOutThread = new Thread(progErrToOut);
 			progToOutThread.start();
@@ -59,13 +94,24 @@ public class Filter {
 			System.out.println( "exception while redirecting channels" + e.getMessage() );
 		}
 	}
-	
+
+	// program arguments:
 	private Mode mode;
 	private String language;
+	
 	private boolean isClient;
 	private String host;
 	private int port;
 	private boolean isServer;
+	
+	// input and output channels of the program:
+	private Scanner in;
+	private PrintStream out;
+	
+	// sockets are only used, if the corresponding program arguments have been used:
+	private Socket clientSocket;
+	private ServerSocket serverSocket;
+	private Socket listen;
 	
 	private void readParams(String[] args) {
 		try {
