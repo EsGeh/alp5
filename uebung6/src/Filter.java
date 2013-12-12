@@ -44,7 +44,7 @@ public class Filter {
 		if( isServer ) {
 			serverSocket = new ServerSocket(0);
 			int port = serverSocket.getLocalPort();
-			System.err.print(port); System.err.flush();
+			System.err.println(port); System.err.flush();
 			//SocketAddress addr = new InetSocketAddress("localhost", port);
 			//serverSocket.bind(addr);
 			listen = serverSocket.accept();
@@ -119,7 +119,7 @@ public class Filter {
 	
 	private void readParams(String[] args) throws Exception {
 		try {
-			if( !(args.length == 2 || args.length == 5 || args.length == 6)) {
+			if( !(args.length == 2 || args.length == 3 || args.length == 5 || args.length == 6)) {
 				throw new Exception("invalid syntax");
 			}
 			String plusMinus = args[0];
@@ -141,19 +141,19 @@ public class Filter {
 				return;
 			}
 			int currentParam = 2;
-			if( args[currentParam].equals("-c")) {
-				isClient = true;
-				currentParam++;
-				host = args[currentParam];
-				currentParam++;
-				port = Integer.parseInt( args[currentParam] );
-				currentParam++;
-			}
-			if( args.length < 6 ) {
-				return;
-			}
-			if( args[currentParam].equals("-s")) {
-				isServer = true;
+			while( currentParam < args.length ) {
+				if( args[currentParam].equals("-c")) {
+					isClient = true;
+					currentParam++;
+					host = args[currentParam];
+					currentParam++;
+					port = Integer.parseInt( args[currentParam] );
+					currentParam++;
+				}
+				else if( args[currentParam].equals("-s")) {
+					isServer = true;
+					currentParam++;
+				}
 			}
 		}
 		catch(Exception e) {
