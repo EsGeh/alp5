@@ -1,9 +1,7 @@
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.Scanner;
 
 
@@ -19,7 +17,13 @@ public class Filter {
 	 */
 	public static void main(String[] args) {
 		Filter pThis = new Filter();
-		pThis.readParams(args);
+		try {
+			pThis.readParams(args);
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+			return;
+		}
 		
 		try {
 			pThis.init();
@@ -113,7 +117,7 @@ public class Filter {
 	private ServerSocket serverSocket;
 	private Socket listen;
 	
-	private void readParams(String[] args) {
+	private void readParams(String[] args) throws Exception {
 		try {
 			if( !(args.length == 2 || args.length == 5 || args.length == 6)) {
 				throw new Exception("invalid syntax");
@@ -153,8 +157,10 @@ public class Filter {
 			}
 		}
 		catch(Exception e) {
-			System.out.println("usage: Filter (+|-) language [-c host port] [-s]");
-			System.out.println( "\t" + e.getMessage() );
+			throw new Exception(
+				"usage: Filter (+|-) language [-c host port] [-s]\n" +
+				"\t" + e.getMessage()
+			);
 		}
 	}
 }
