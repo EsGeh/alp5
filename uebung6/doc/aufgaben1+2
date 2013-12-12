@@ -1,0 +1,24 @@
+Aufgabe (2)
+
+Nein, das ist tatsächlich nicht so. Das Aufrufen von "fork server.s1(4711)" würde dafür sorgen, dass das Programm blockiert.
+Um das gewünschte Verhalten trotzdem abbilden zu können, wollen wir einen Thread und eine BlockingQueue benutzen. Die Methode
+"fork" muss dafür sorgen, dass die Brechnungen von server.s1() in einem anderen Thread ablaufen. Dadurch würde gewährleistet
+werden, dass das Hauptprogramm nicht blockiert. Der Rückgabewert dieser Forkmethode wäre vom Typ Future(bzw. dem Namen, der
+Klasse, die Future implementiert). Future.get() würde nun dafür sorgen, dass ein Element einer BlockingQueue entfernt. Diese
+BlockingQueue kann als einziges mögliches Ergebnis das Resultat der von fork gestarteten Berechnungen in dem ebenso gestarteten
+Threat erhalten, falls die Berechnung abgeschlossen ist. Ist das Resultat der Berechnung noch nicht errechnet, dann ist die
+BlockingQueue leer und Future.get() wird - wie gefordert - auf das Ergebnis warten müssen und blockieren.
+
+Aufgabe (1)
+
+---D---F---V---
+---------------
+D--0---2---1---
+---------------
+---------------
+F-- ---0--- ---
+---------------
+---------------
+V--2--- ---0---
+---------------
+---------------
