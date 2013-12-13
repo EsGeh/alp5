@@ -13,17 +13,17 @@ public class LanguageChecker {
 
 	/**
 	 * @param args
-	 * LanguageChecker file host1 host2
+	 * LanguageChecker <yourIP> <file> <host1> <host2>
 	 */
 	public static void main(String[] args) {
-		if( args.length != 6) {
-			System.out.println("syntax: LanguageChecker localIP germanDict englishDict filename host1 host2");
+		if( args.length != 4) {
+			System.out.println("syntax: LanguageChecker localIP filename host1 host2");
 			return;
 		}
 		String localIP = args[0];
-		String germanDict = args[1]; String englishDict = args[2];
-		String filename = args[3];
-		String host1 = args[4]; String host2 = args[5];
+		String germanDict = "german"; String englishDict = "english";
+		String filename = args[1];
+		String host1 = args[2]; String host2 = args[3];
 		
 		LanguageChecker pThis = new LanguageChecker();
 		try {
@@ -56,9 +56,9 @@ public class LanguageChecker {
 		
 		Process pEnglish1 = null;
 		try {
-			String commandEnglish1 = "java -classpath bin Filter + " + englishDict + " -s" + " -c " + localIP + " 8000";
+			String commandEnglish1 = "java -classpath bin Filter + " + englishDict + " -s";
 			if( ! host1.equals("localhost"))
-				commandEnglish1 = host1 + ":" + commandEnglish1;
+				commandEnglish1 = host1 + ":" + commandEnglish1 + " -c " + localIP + " 8000";
 			System.out.println("command: " + commandEnglish1);
 			System.out.println("fork...");
 			pEnglish1 = Fork.fork(  commandEnglish1);
@@ -67,22 +67,23 @@ public class LanguageChecker {
 		catch(IOException e) {
 			throw new Exception("exception while forking remote process: " + e.getMessage());
 		}
-		Scanner errFromEnglish1 = new Scanner(pEnglish1.getErrorStream());
-		System.out.println("scanner created");
+		
 		int portEnglish1 = -1;
-		try {
-			/*if( !errFromEnglish1.hasNext()) {
-				throw new Exception("bla");
-			}*/
-			String errFromEngl1 = errFromEnglish1.nextLine();
-			//System.out.println("from stderr: " + errFromEngl1);
-			portEnglish1 = Integer.parseInt(errFromEngl1); //errFromEnglish1.nextInt();
+		if( !host1.equals("localhost")) {
+			
+			Scanner errFromEnglish1 = new Scanner(pEnglish1.getErrorStream());
+			System.out.println("scanner created");
+			try {
+				String errFromEngl1 = errFromEnglish1.nextLine();
+				//System.out.println("from stderr: " + errFromEngl1);
+				portEnglish1 = Integer.parseInt(errFromEngl1); //errFromEnglish1.nextInt();
+			}
+			catch(Exception e) {
+				errFromEnglish1.close();
+				throw new Exception(" exception while receiving from remote err: " + e.getMessage());
+			}
+			System.out.println("port: " + portEnglish1);
 		}
-		catch(Exception e) {
-			errFromEnglish1.close();
-			throw new Exception(" exception while receiving from remote err: " + e.getMessage());
-		}
-		System.out.println("port: " + portEnglish1);
 		
 		Socket socket = null;
 		Scanner fromEngl1 = null;
@@ -96,7 +97,6 @@ public class LanguageChecker {
 			}
 		}
 		catch(IOException e) {
-			errFromEnglish1.close();
 			throw new Exception("exception while trying to connect to remote process: " + e.getMessage());
 		}
 		
@@ -109,7 +109,6 @@ public class LanguageChecker {
 		engl1ToOutThread.join();
 		System.out.println("all threads finished!");
 		
-		errFromEnglish1.close();
 		socket.close();
 		//System.out.println("port of engl1: " + portEnglish1);
 	}

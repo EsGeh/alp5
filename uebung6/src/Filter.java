@@ -64,7 +64,7 @@ public class Filter {
 	}
 	
 	public void exec() {
-		// syntax: check2 [host@server:]DICT
+		// syntax: check2 DICT (+|-)
 		//String command = "ls";
 		String command = "./dist/build/check2/check2 " + language + " " + ((mode==Mode.OUTPUT_VALID) ? "+" : "-");
 		Process p = null;
