@@ -58,3 +58,48 @@ D mitgegeben. Liegen zwischen A und D nun die Prozesse B und C, so erhält zunä
 Adresse entscheidet B, dass die Nachricht weiterzugeben ist und die Nachricht landet bei C, wo dasselbe passiert und die Nachricht
 schließlich korrekt bei D landet. Sollte D sich entscheiden eine Nachricht an A zu schicken, so wird weiter in der gleichen
 Richtung wie bisher vorgegangen und nach den Prozessen E, F und G landet die Nachricht von D bei A.
+
+Aufgabe (3) a).
+	Quellcode: 
+		./src
+	Binärdateien:
+		./bin
+	Aufruf mittels:
+		java -cp bin Filter (+|-) language [-c host port] [-s]
+	kompilieren des Programms:
+		Das Programm besteht aus einem Haskell-Programm "check2", und einem Java-Programm, welches das Haskell-Programm benutzt.
+			kompilieren von check2: 
+				$ cabal configure
+				$ cabal build
+			kompilieren von "Filter":
+				die binär-Dateien befinden sich bereits im Ordner ./bin
+				
+	"installieren":
+		Das Programm Filter nimmt an, dass sich die Wörterbücher in /tmp/<language> befinden. Der folgende Befehl benutzt rsync um ein englisches und ein deutsches Wörterbuch von dem Pfad der in Aufgabe 2.3 angegeben ist von den Institutsrechnern zu holen:
+			$ rsync -av <user>@bala.imp.fu-berlin.de:/home/mi/lohr/lehre/alp5/ws13/german.dic /tmp/german
+			$ rsync -av <user>@bala.imp.fu-berlin.de:/home/mi/lohr/lehre/alp5/ws13/english.dic /tmp/english
+		Ab jetzt können "german" oder "english" als Programmargumente für das Programm "Filter", und auch für den LanguageChecker (siehe aufgabe b)) benutzt werden.
+			
+	Beispielaufruf:
+		cat ./example/example.txt | java -cp ./bin Filter - german
+
+	Kommentar:
+		Die optionen "-c" und "-s" funktionieren auch, und können mittels netcat (nc) getestet werden.
+
+
+Aufgabe (3) b).
+	Aufruf mittels:
+		java -cp bin LanguageChecker <yourIP> german english <datei> <host1> <host2>
+		Erklärung:
+			<datei> ist die zu überprüfende Datei
+			<host1> und <host2> müssen gültige IP-Addressen oder urls von anderen Rechnern sein (oder "localhost"). Im Falle von localhost werden die Filter-Programme auf dem lokalen Rechner ausgeführt.
+			<yourIP> ist nur notwendig, falls nicht <host1> und <host2> "localhost" sind.
+	Kommentar: Das Programm ist momentan noch unvollständig, und funktioniert nur, falls für beide hosts "localhost" angegeben wird. Es wird keine Statistik angezeigt, sondern nur die Ausgabe von "Filter" angezeigt.
+	Quellcode: 
+		./src
+	Binärdateien:
+		./bin
+	Vorraussetzungen:
+		Das Programm "Filter" (aus Aufgabe (3) a)) muss installiert sein.
+	Beispielaufruf:
+		cat ./example/example.txt | java -cp LanguageChecker	
