@@ -10,14 +10,13 @@ getDictFileName filename = localDictFolder ++ filename
 
 -- | copy files from the server, and copy it to
 --   localTextFile and localDictFile
-{-
 fetchFiles fileInfo = do
-	dictFileExists <- doesFileExist localDictFile
+	let localFileName = (getDictFileName $ path fileInfo)
+	dictFileExists <- doesFileExist localFileName
 	fetchDictReturn <- if dictFileExists then return Nothing else do
 		putStrLn $ "fetching dictionary... " ++ (show $ fileInfo)
-		fetchFile fileInfo localDictFile
+		fetchFile fileInfo localFileName
 	return $ fetchDictReturn
--}
 
 fetchFile fileInfo dest = do
 		exitCodeText <- system $ "rsync -au " ++ scpParam fileInfo ++ " " ++ dest
