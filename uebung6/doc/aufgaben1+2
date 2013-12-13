@@ -1,0 +1,60 @@
+Aufgabe (2)
+
+Nein, das ist tatsächlich nicht so. Das Aufrufen von "fork server.s1(4711)" würde dafür sorgen, dass das Programm blockiert.
+Um das gewünschte Verhalten trotzdem abbilden zu können, wollen wir einen Thread und eine BlockingQueue benutzen. Die Methode
+"fork" muss dafür sorgen, dass die Brechnungen von server.s1() in einem anderen Thread ablaufen. Dadurch würde gewährleistet
+werden, dass das Hauptprogramm nicht blockiert. Der Rückgabewert dieser Forkmethode wäre vom Typ Future(bzw. dem Namen, der
+Klasse, die Future implementiert). Future.get() würde nun dafür sorgen, dass ein Element einer BlockingQueue entfernt. Diese
+BlockingQueue kann als einziges mögliches Ergebnis das Resultat der von fork gestarteten Berechnungen in dem ebenso gestarteten
+Threat erhalten, falls die Berechnung abgeschlossen ist. Ist das Resultat der Berechnung noch nicht errechnet, dann ist die
+BlockingQueue leer und Future.get() wird - wie gefordert - auf das Ergebnis warten müssen und blockieren.
+
+Aufgabe (1)
+
+---D---F---V---
+---------------
+D--0---2---2---
+---------------
+---------------
+F--5---0---2---
+---------------
+---------------
+V--1---3---0---
+---------------
+---------------
+
+F->D: Wir machen uns hier das Vorhandensein von Zyklen bei der Flussarchitektur zu Nutze. Ein Client pro Server einen Ausgabeport,
+über den er Nachrichten an den Server schickt. Der Server erhält die Nachricht über einen Eingabeport(auch einer pro Client) und
+schickt die Antwort an den Client-Prozess. Auch hierfür müssen wieder entsprechen Ports reserviert werden. Durch die Unterscheidung
+der Ports garantieren wir, dass die Prozesse die Nachrichten korrekt adressieren. Das Flussdiagramm wird also so aussehen, dass
+man deutlich die verschiedenen Stufen der Hierarchie der gewünschten Client-Server-Architektur erkennen wird. Denn: Es wird sich
+ergeben, dass, da Server nur ihren Clients antworten können, keine Stufen in der Hierarchie übersprungen werden können und man
+wird auch im Flussdiagramm sagen können, wie "tief" ein Server vom "Urclient" betrachtet angeordnet ist.
+
+V->D: Aus einem Verteilten Algorithmen eine Dienstarchitektur zu machen ist relativ einfach, da der relevante Unterschied in
+diesem Fall daraus besteht, dass bei Verteilten Algorithmen die Knoten in beide Richtungen gleichberechtigt Nachrichten versenden
+können, während bei der Dienstarchitektur nur der Client vom Server weiß und Reaktionen hervorrufen kann. Wir sorgen also einfach
+dafür, dass die Server und Clients miteinander kommunizieren können, und richten die Server so ein, dass sie erst aktiv werden,
+wenn der Client eine Anfrage stellt(dies gilt insbesondere für folgende Anfragen an "Unter-"Server).
+
+D->F: Wir bilden wie bei D->V den zentralen Kommunikationsserver. Dann machen wir aus dieser Architektur den Ring wie bei F->V.
+Die Prozesse schicken letztendlich also alle ihre Nachrichten an den zentralen Kommunikationsserver. Dieser schickt die
+Nachrichten aber nun nicht mehr direkt an den Adressaten, sondern geht Schritt für Schritt den Ring der Prozesse ab, was recht
+umständlich ist.
+
+V->F: Mit Verteilten Algorithmen lassen sich Semaphoren realisieren. Mit Semaphoren können Beschränkte Puffer realisiert
+werden und mit diesen wiederum Puffer. Die Knoten der Flussarchitektur entspricht dann einem Programmteil des Verteilten
+Algorithmus. Dieser Programmteil liest vom Eingabe- und schreibt in den Ausgabeport. 
+Wir haben also alles, um die Flussarchitektur abbilden zu können.
+
+D->V: Um Verteilte Algorithmen zu ermöglichen, müsste jeder Prozess in der Lage sein mit jedem anderen in beide Richtungen zu
+kommunizieren. Dies gewährleisten wir, indem wir alle Prozesse des gewünschten Systems Verteilter Algorithmen zu Clients eines
+zentralen Kommunikations-Servers machen. Wenn nun eine Nachricht von A nach B geschickt werden soll, so schickt A seine
+Nachricht mit Adresse B an den zentralen Server und dieser leitet die Nachricht an den Adressaten B weiter. So kann jedes
+beliebige Verteilte Algorithmen System aufgebaut werden.
+
+F->V: Wir bilden einen Ring aller Prozesse. Wenn nun ein Prozess A eine Nachricht nach D schicken will, so wird eine Adresse
+D mitgegeben. Liegen zwischen A und D nun die Prozesse B und C, so erhält zunächst B erwähnte Nachricht. Nach Betrachten der
+Adresse entscheidet B, dass die Nachricht weiterzugeben ist und die Nachricht landet bei C, wo dasselbe passiert und die Nachricht
+schließlich korrekt bei D landet. Sollte D sich entscheiden eine Nachricht an A zu schicken, so wird weiter in der gleichen
+Richtung wie bisher vorgegangen und nach den Prozessen E, F und G landet die Nachricht von D bei A.
