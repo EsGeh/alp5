@@ -8,6 +8,12 @@ Library
   Hs-Source-Dirs: common
   build-depends: base ==4.5.*, directory >= 1.1.0.2, process >= 1.1.0.1
 
+--Executable LanguageChecker
+  --Main-is: Main.hs
+  --other-modules: LangCheck.Main
+  --hs-source-dirs: languageChecker
+  --build-depends: base==4.5.*
+
 Executable check2
   Main-is: Main.hs
   other-modules: Check.Main

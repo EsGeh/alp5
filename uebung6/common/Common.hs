@@ -5,30 +5,18 @@ import System.Cmd
 import System.Directory(doesFileExist)
 
 -- | destination for the local copies of the text and dictionary
-localTextFile = "/tmp/text"
-localDictFile = "/tmp/dict"
+localDictFolder = "/tmp/"
+getDictFileName filename = localDictFolder ++ filename
 
 -- | copy files from the server, and copy it to
 --   localTextFile and localDictFile
+{-
 fetchFiles fileInfo = do
 	dictFileExists <- doesFileExist localDictFile
 	fetchDictReturn <- if dictFileExists then return Nothing else do
 		putStrLn $ "fetching dictionary... " ++ (show $ fileInfo)
 		fetchFile fileInfo localDictFile
 	return $ fetchDictReturn
-{-fetchFiles args = do
-	textFileExists <- doesFileExist localTextFile 
-	dictFileExists <- doesFileExist localDictFile
-	fetchTextReturn <- if textFileExists then return Nothing else do
-		putStrLn $ "fetching text file... " ++ (show $ textFileInfo args)
-		fetchFile (textFileInfo args) localTextFile
-	fetchDictReturn <- if dictFileExists then return Nothing else do
-		putStrLn $ "fetching dictionary... " ++ (show $ dictFileInfo args)
-		fetchFile (dictFileInfo args) localDictFile
-	return $ FetchFilesReturn {
-		fetchTextReturn = fetchTextReturn,
-		fetchDictReturn = fetchDictReturn
-	}
 -}
 
 fetchFile fileInfo dest = do

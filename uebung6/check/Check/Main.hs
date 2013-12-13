@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module Check.Main where
 
 import Common
@@ -6,21 +7,22 @@ import System.IO
 import System.Environment
 import Text.Regex
 import Control.Monad
---import Data.List.Split
 
 
 main = do
 	hSetBuffering stdout LineBuffering
-	programParams <- (getArgs >>= (return . calcProgramParams))
+	! programParams <- (getArgs >>= (return . (id $!) . calcProgramParams))
+
+	--let dummy $! programParams
 
 	-- copy remote files onto this machine:
-	fetchFiles $! fetchParams $! programParams
+	--fetchFiles $! fetchParams $! programParams
 	-- # TODO: add error handling
 
 	--putStrLn "processing text..."
 	text <- getContents
 	--text <- textFromFile localTextFile
-	dict <- readFile localDictFile
+	dict <- readFile (getDictFileName $ dictFile programParams)
 	--let range = checkParams programParams
 	let mode' = mode programParams
 
@@ -79,12 +81,12 @@ findWordInDic dict word = elem word dict {-case elem word dict of
 --
 calcProgramParams args = case args of
 	(dictFile : modeString : []) -> ProgramParams {
-		fetchParams = fetchParams,
+		dictFile = dictFile,
 		mode = mode' }
 		--checkParams = (startPos,endPos - startPos) }
 		where
 			--(startPos, endPos) = (read from, read to)
-			fetchParams = fileInfoFromString dictFile
+			--fetchParams = fileInfoFromString dictFile
 			{-fetchParams = FetchParams {
 				--textFileInfo = fileInfoFromString textFile,
 				dictFileInfo = fileInfoFromString dictFile
@@ -94,13 +96,16 @@ calcProgramParams args = case args of
 				"-" -> PrintInvalid
 				_ -> error $ "invalid mode \"" ++ modeString ++ "\""
 			
-	_ -> error "usage: check2 [user@server:]DICT (+|-)"
+	_ -> error "usage: check2 DICT (+|-)"
+	--_ -> error "usage: check2 [user@server:]DICT (+|-)"
 
 data ProgramParams = ProgramParams {
-	fetchParams :: FileInfo,
+	dictFile :: Filename,
 	--checkParams :: CheckParams
 	mode :: Mode
 }
+
+type Filename = String
 
 data Mode = PrintValid | PrintInvalid
 
