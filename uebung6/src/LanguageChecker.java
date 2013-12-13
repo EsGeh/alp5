@@ -52,10 +52,14 @@ public class LanguageChecker {
 		// -s : input from tcp
 		// -c host port : output to tcp
 		
-		String commandEnglish1 = host1 + ":" + "java -classpath bin Filter + " + englishDict + " -s -c " + localIP + " 8000";
-		System.out.println("command: " + commandEnglish1);
+		
+		
 		Process pEnglish1 = null;
 		try {
+			String commandEnglish1 = "java -classpath bin Filter + " + englishDict + " -s" + " -c " + localIP + " 8000";
+			if( ! host1.equals("localhost"))
+				commandEnglish1 = host1 + ":" + commandEnglish1;
+			System.out.println("command: " + commandEnglish1);
 			System.out.println("fork...");
 			pEnglish1 = Fork.fork(  commandEnglish1);
 			System.out.println("fork done");
@@ -71,8 +75,8 @@ public class LanguageChecker {
 				throw new Exception("bla");
 			}*/
 			String errFromEngl1 = errFromEnglish1.nextLine();
-			System.out.println("from stderr: " + errFromEngl1);
-			//portEnglish1 = errFromEnglish1.nextInt();
+			//System.out.println("from stderr: " + errFromEngl1);
+			portEnglish1 = Integer.parseInt(errFromEngl1); //errFromEnglish1.nextInt();
 		}
 		catch(Exception e) {
 			errFromEnglish1.close();
@@ -83,8 +87,13 @@ public class LanguageChecker {
 		Socket socket = null;
 		Scanner fromEngl1 = null;
 		try {
-			socket = new Socket(host1, portEnglish1);
-			fromEngl1 = new Scanner(socket.getInputStream());
+			if( !host1.equals("localhost")) {
+				socket = new Socket(host1, portEnglish1);
+				fromEngl1 = new Scanner(socket.getInputStream());
+			}
+			else {
+				fromEngl1 = new Scanner(pEnglish1.getInputStream());
+			}
 		}
 		catch(IOException e) {
 			errFromEnglish1.close();
@@ -94,6 +103,11 @@ public class LanguageChecker {
 		InToOut engl1ToOut  = new InToOut(fromEngl1, System.out);
 		Thread engl1ToOutThread = new Thread(engl1ToOut);
 		engl1ToOutThread.start();
+		
+		pEnglish1.waitFor();
+		
+		engl1ToOutThread.join();
+		System.out.println("all threads finished!");
 		
 		errFromEnglish1.close();
 		socket.close();
