@@ -6,8 +6,8 @@ import java.util.Scanner;
 
 public class Client {
 
-	public Client(Dictionary dict) {
-		this.dict = dict;
+	public Client(Dictionary dictionary) {
+		this.dictionary = dictionary;
 		in = new Scanner(System.in);
 		out = System.out;
 	}
@@ -21,7 +21,7 @@ public class Client {
 			
 			List<String> result = null;
 			try {
-				result = dict.lookup(index);
+				result = dictionary.lookup(index);
 			}
 			catch(RemoteException e) {
 				out.println("exception while trying to lookup: " + e.getMessage());
@@ -37,8 +37,8 @@ public class Client {
 		}
 	}
 	
-	private Scanner in;
-	private PrintStream out;
-	private Dictionary dict;
+	protected Scanner in;
+	protected PrintStream out;
+	protected Dictionary dictionary;
 
 }

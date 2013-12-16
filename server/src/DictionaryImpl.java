@@ -8,8 +8,9 @@ public class DictionaryImpl
 	extends HashMap<String, LinkedList<String>>
 	implements Dictionary { // (just to mention)
 
-	/*public DictionaryImpl() {
-	}*/
+	public DictionaryImpl() throws RemoteException {
+		super();
+	}
 
 	@Override
 	public LinkedList<String> lookup(String word) throws RemoteException {
