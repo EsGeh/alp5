@@ -32,7 +32,7 @@ public class RMIClient extends Client {
 			pThis.out.println("exception while fetching dictionary: " + e.getMessage());
 		}
 		
-		// 2. execute the server:
+		// 2. execute the client:
 		pThis.exec();
 		
 	}

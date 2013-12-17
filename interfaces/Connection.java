@@ -1,7 +1,13 @@
+import java.io.PrintStream;
+import java.util.Scanner;
+
 
 public interface Connection {
 	
-	public String recv();
-	public void send(String message);
+	public Scanner getIn();
+	public PrintStream getOut();
+	
+	/*public String recv();
+	public void send(String message);*/
 	
 }
