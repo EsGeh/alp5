@@ -6,6 +6,7 @@ public class ProtocolDictionary implements Dictionary {
 
 	public ProtocolDictionary(Connection connection) {
 		this.connection = connection;
+		//answer = null;
 	}
 
 	@Override
@@ -21,5 +22,6 @@ public class ProtocolDictionary implements Dictionary {
 		return resultList;
 	}
 	
+	//private String answer;
 	private Connection connection;
 }

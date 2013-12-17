@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 public abstract class ProtocolServer {
@@ -14,12 +15,28 @@ public abstract class ProtocolServer {
 	public void exec() throws IOException {
 		while(true) {
 			Connection connection = accept();
-			answer(connection);
+			while(connection.isOpen())
+				answer(connection);
 		}
 	}
 	
 	public void answer(Connection connection) {
-		String word = connection.getIn().nextLine();
+		
+		String word = null;
+		try {
+			word = connection.getIn().nextLine();
+		}
+		catch(NoSuchElementException e) {
+			// connection dropped by the client:
+			System.out.println("client dropped the connection!");
+			try {
+				connection.close();
+			}
+			catch(IOException e2) {
+				System.out.println("exception while closing the connection: " + e2.getMessage());
+			}
+			return;
+		}
 		try {
 			List<String> result = dictionary.lookup(word);
 			if( result!=null ) {
@@ -34,10 +51,16 @@ public abstract class ProtocolServer {
 			else {
 				connection.getOut().println("");
 			}
+			
 		}
 		catch(RemoteException e) {
 			System.out.println("remote exception: " + e.getMessage());
 		}
+		/*String goOn = connection.getIn().nextLine();
+		if( goOn.equals("true"))
+			return true;
+		else
+			return false;*/
 	}
 
 	private Dictionary dictionary;

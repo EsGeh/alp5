@@ -12,6 +12,16 @@ public class TCPConnection implements Connection {
 		out = new PrintStream( socket.getOutputStream() );
 	}
 	
+	public boolean isOpen() {
+		return !this.socket.isClosed();
+	}
+	
+	public void close() throws IOException {
+		socket.close();
+		in.close();
+		out.close();
+	}
+	
 	public Scanner getIn() {
 		return in;
 	}

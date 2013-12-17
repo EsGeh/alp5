@@ -31,6 +31,7 @@ public class TCPClient extends Client {
 		}
 		catch( IOException e) {
 			System.out.println("exception while connecting to server: " + e.getMessage());
+			return;
 		}
 		
 		// 2. create a protocol:
@@ -41,6 +42,15 @@ public class TCPClient extends Client {
 		
 		// 4. execute the client:
 		pThis.exec();
+		
+		//connection
+		try {
+			connection.close();
+		}
+		catch(IOException e) {
+			pThis.out.println("error while closing connection: " + e.getMessage());
+			return;
+		}
 	}
 	
 	public static Connection connect(String host, int port) throws UnknownHostException, IOException {

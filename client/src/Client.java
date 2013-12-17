@@ -16,7 +16,12 @@ public class Client {
 	 * @param args
 	 */
 	public void exec() {
-		while( in.hasNext() ) {
+		out.println("Hello to the distributed dictionary!");
+		out.println("type an english word to find a german translation. ^D to exit"); 
+		do {
+			out.print("> ");
+			if( ! in.hasNext())
+				break;
 			String index = in.nextLine();
 			
 			List<String> result = null;
@@ -35,6 +40,7 @@ public class Client {
 				out.println("entry not found!");
 			}
 		}
+		while( true /*in.hasNext()*/ );
 	}
 	
 	protected Scanner in;

@@ -25,7 +25,7 @@ public class TCPServer extends ProtocolServer {
 	
 	private ServerSocket listen;
 	
-	public void main(String []args) {
+	public static void main(String[] args) {
 		
 		// 0. parse command line arguments:
 		if(args.length != 2) {
@@ -54,6 +54,8 @@ public class TCPServer extends ProtocolServer {
 			System.out.println("exception while opening port: " + e.getMessage());
 			return;
 		}
+		
+		System.out.println("server started");
 		
 		// 3. execute it:
 		try {
