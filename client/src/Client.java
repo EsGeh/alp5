@@ -25,8 +25,12 @@ public class Client {
 			String index = in.nextLine();
 			
 			List<String> result = null;
-			try {
+			double deltaT = 0;
+			try { 
+				double t0 = System.nanoTime();
 				result = dictionary.lookup(index);
+				double t = System.nanoTime();
+				deltaT = t - t0;
 			}
 			catch(RemoteException e) {
 				out.println("exception while trying to lookup: " + e.getMessage());
@@ -34,7 +38,7 @@ public class Client {
 			}
 			
 			if( result!=null ) {
-				out.println("result: " + result);
+				out.println("result: " + result + " (answer time: " + (float )deltaT / 1000 + "us)");
 			}
 			else {
 				out.println("entry not found!");
