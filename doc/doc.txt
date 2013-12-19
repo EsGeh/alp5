@@ -1,0 +1,74 @@
+
+
+1. Verteiltes Wörterbuch.
+	Gemeinsamer Code für Server und Client: 
+		Quellcode: ./interfaces/
+	Server:
+		Quellcode: ./server/src/
+		Binärcode: ./server/bin/
+	Client:
+		Quellcode: ./client/src/
+		Binärcode: ./client/bin/
+
+Dokumentation des Programmdesigns (-> 1. d) )
+	./doc/uml.*
+Kommentar zum UML-Diagramm und zum Kompilieren:
+Die Pakete symbolisieren eine Einteilung des Quellcodes:
+	* Quellcode für die Klassen im Paket "server" wird ausschließlich zum Kompilieren des Servers benötigt.
+	* Quellcode für die Klassen im Paket "client" wird ausschließlich zum Kompilieren des Clients benötigt.
+	* Quellcode in "interfaces" wird zum Kompilieren von Server UND Client benötigt
+
+Einfach Möglichkeit zum Kompilieren mittels Eclipse:
+	* 2 Projekte anlegen - eines für Server (auf ./server), eines für den Client (auf ./client)
+	* füge ./interfaces als zusätzliches Quellcode-Verzeichnis zu beiden Projekten hinzu
+	* jetzt sollten die Binärdateien an den richtigen Stellen sein.
+
+
+1.a) Implementierung mittels RMI:
+	Hilfsskripte:
+		./startJavaRMI.sh	startet den java rmi server
+		./startRMIServer.sh	startet den Serverprozess
+		./startRMIClient.sh	startet den Clientprozess
+	Testlauf zur Zeitmessung:
+		(Auf dem Server-Rechner:)
+		$ ./startJavaRMI &
+		$ ./startRMIServer
+			server has been started successfully
+		(Auf dem Client-Rechner:)
+		$ ./startRMIClient.sh 
+			Hello to the distributed dictionary!
+			type an english word to find a german translation. ^D to exit
+		> bla
+			entry not found!
+		> hurz
+			entry not found!
+		> tree
+			result: [Baum] (answer time: 5384.528us)
+		> failure
+			result: [Fehlschlag, Misserfolg, Versager] (answer time: 1557.278us)
+		> message
+			result: [Botschaft, Nachricht] (answer time: 3238.631us)
+
+1.b) Implementierung mittels TCP:
+	Testlauf zur Zeitmessung:
+		(Auf dem Server-Rechner:)
+		$ java -cp server/bin TCPServer dictionary 8000
+			server started
+		(Auf dem Client-Rechner:)
+		$ java -cp client/bin TCPClient localhost 8000
+			Hello to the distributed dictionary!
+			type an english word to find a german translation. ^D to exit
+		> bla
+			result: [] (answer time: 1149.876us)
+		> hurz
+			result: [] (answer time: 39093.234us)
+		> tree
+			result: [Baum] (answer time: 40313.047us)
+		> failure
+			result: [Fehlschlag, Misserfolg, Versager] (answer time: 39093.777us)
+		> message
+			result: [Botschaft, Nachricht] (answer time: 37068.336us)
+
+1.d) ja, siehe "Dokumentation des Programmdesigns (-> 1. d) )" weiter oben
+
+1.e) die RMI-Variante ist deutlich schneller als die TCP-Variante. Dies könnte daran liegen, da in unserem Test-Szenario Server und Client auf dem gleichen Rechner gestartet werden. Vermutlich wird dies von der JVM erkannt, und der Umweg über das IP-Protokoll vermieden. In der TCP-Variante hingegen müssen erzwungenermaßen TCP- und IP-Pakete gepackt und (wenn auch lokal) verschickt werden.
