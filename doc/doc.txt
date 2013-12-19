@@ -1,0 +1,15 @@
+Aufgabe (2)
+Es wird ausgegeben: there :mumps
+                    here : xxx
+
+Wenn "Map<String, String> there = m1.dump();" ausgeführt wird, kann nicht wie bei here nur ein Zeiger kopiert werden, denn da
+angenommen werden muss, dass auf there remote zugegriffen wird, wäre es nicht sinnvoll die Stelle im Speicher des anderen
+Computer zu kennen, an der die Map liegt. Es muss also serialisiert werden. Wenn dann "xxx" an dem key "disease" bei there
+geschrieben wird, wird diese Kopie verändert. Bei Aufruf von m1.lookup wird dann aber wieder die "ursprüngliche" Map benutzt, die
+seit dem dump() gar nicht mehr verändert wurde. Daher wird dann auch "mumps" ausgegeben.
+
+Anders bei m2: Bei allen analogen Operationen zu der zuvor erwähnten map("there","m1",...) wird bei (m2,here) immer nur der Zeiger
+weitergegeben, auch bei "Map<String, String> here  = m2.dump();"; denn es ist hier kein remote Zugriff möglich durch die Konstitution
+von "this" bzw. "m2". Daher wird ganz gewöhnlich immer der Zeiger weitergegeben und auch bei here.put() wird auf die Map von m2 zuge-
+griffen und nicht auf eine neu angelegte Kopie. Daher wird "m2.lookup("disease")" dann "xxx" zurückgeben, schließlich wurde zuvor
+mit "here.put("disease", "xxx");" die gleiche Map verändert, die nun partiell ausgegeben werden soll.
