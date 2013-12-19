@@ -1,3 +1,13 @@
+Alp5 - Übung 7 
+
+
+Bearbeitung:
+	André Röhrig
+	Samuel Gfrörer
+Tutor:
+	Marco Träger
+Tutorium:
+	Mittwochs um 14 Uhr
 
 
 1. Verteiltes Wörterbuch.
@@ -12,11 +22,11 @@
 
 Dokumentation des Programmdesigns (-> 1. d) )
 	./doc/uml.*
-Kommentar zum UML-Diagramm und zum Kompilieren:
-Die Pakete symbolisieren eine Einteilung des Quellcodes:
-	* Quellcode für die Klassen im Paket "server" wird ausschließlich zum Kompilieren des Servers benötigt.
-	* Quellcode für die Klassen im Paket "client" wird ausschließlich zum Kompilieren des Clients benötigt.
-	* Quellcode in "interfaces" wird zum Kompilieren von Server UND Client benötigt
+	Kommentar zum UML-Diagramm und zum Kompilieren:
+		Die Pakete symbolisieren eine Einteilung des Quellcodes:
+		* Quellcode für die Klassen im Paket "server" wird ausschließlich zum Kompilieren des Servers benötigt.
+		* Quellcode für die Klassen im Paket "client" wird ausschließlich zum Kompilieren des Clients benötigt.
+		* Quellcode in "interfaces" wird zum Kompilieren von Server UND Client benötigt
 
 Einfach Möglichkeit zum Kompilieren mittels Eclipse:
 	* 2 Projekte anlegen - eines für Server (auf ./server), eines für den Client (auf ./client)
@@ -72,3 +82,32 @@ Einfach Möglichkeit zum Kompilieren mittels Eclipse:
 1.d) ja, siehe "Dokumentation des Programmdesigns (-> 1. d) )" weiter oben
 
 1.e) die RMI-Variante ist deutlich schneller als die TCP-Variante. Dies könnte daran liegen, da in unserem Test-Szenario Server und Client auf dem gleichen Rechner gestartet werden. Vermutlich wird dies von der JVM erkannt, und der Umweg über das IP-Protokoll vermieden. In der TCP-Variante hingegen müssen erzwungenermaßen TCP- und IP-Pakete gepackt und (wenn auch lokal) verschickt werden.
+
+
+
+Aufgabe (2)
+Es wird ausgegeben: there :mumps
+                    here : xxx
+
+Wenn "Map<String, String> there = m1.dump();" ausgeführt wird, kann nicht wie bei here nur ein Zeiger kopiert werden, denn da
+angenommen werden muss, dass auf there remote zugegriffen wird, wäre es nicht sinnvoll die Stelle im Speicher des anderen
+Computer zu kennen, an der die Map liegt. Es muss also serialisiert werden. Wenn dann "xxx" an dem key "disease" bei there
+geschrieben wird, wird diese Kopie verändert. Bei Aufruf von m1.lookup wird dann aber wieder die "ursprüngliche" Map benutzt, die
+seit dem dump() gar nicht mehr verändert wurde. Daher wird dann auch "mumps" ausgegeben.
+
+Anders bei m2: Bei allen analogen Operationen zu der zuvor erwähnten map("there","m1",...) wird bei (m2,here) immer nur der Zeiger
+weitergegeben, auch bei "Map<String, String> here  = m2.dump();"; denn es ist hier kein remote Zugriff möglich durch die Konstitution
+von "this" bzw. "m2". Daher wird ganz gewöhnlich immer der Zeiger weitergegeben und auch bei here.put() wird auf die Map von m2 zuge-
+griffen und nicht auf eine neu angelegte Kopie. Daher wird "m2.lookup("disease")" dann "xxx" zurückgeben, schließlich wurde zuvor
+mit "here.put("disease", "xxx");" die gleiche Map verändert, die nun partiell ausgegeben werden soll.
+
+Aufgabe (3)
+Entscheidend ist, ob das Interface Ring Serializable oder Remote erweitert. So wie der Code aussieht, würde man nur eine Exception
+erhalten.
+Fall 1(Serializable): In diesem Fall würde in der Klasse RMI bei ring.create und ring.get jeweils eine neue lokale Kopie angelegt
+werden. Das Resultat wäre, dass "0" ausgegeben werden würde, da ring.get auf einen "anderen" Ring zugriffe als ring.create.
+
+Fall 2(Remote): In diesem Fall würde in der Klasse RMI bei ring.create und ring.get auf den selben Ring zugegriffen. Anders gesagt:
+"rings.create("first", 7)" gibt einen Fernverweis zurück, so wie auch "rings.get()", und zwar auf das selbe Objekt. Flood und das
+andere get(des Rings-Interface) greifen demnach auf das selbe Objekt zu.
+Das Resultat wäre, dass "4711" ausgegeben werden würde, da ring.get auf den gleichen Ring zugriffe wie ring.create.
