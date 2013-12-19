@@ -13,3 +13,14 @@ weitergegeben, auch bei "Map<String, String> here  = m2.dump();"; denn es ist hi
 von "this" bzw. "m2". Daher wird ganz gewöhnlich immer der Zeiger weitergegeben und auch bei here.put() wird auf die Map von m2 zuge-
 griffen und nicht auf eine neu angelegte Kopie. Daher wird "m2.lookup("disease")" dann "xxx" zurückgeben, schließlich wurde zuvor
 mit "here.put("disease", "xxx");" die gleiche Map verändert, die nun partiell ausgegeben werden soll.
+
+Aufgabe (3)
+Entscheidend ist, ob das Interface Ring Serializable oder Remote erweitert. So wie der Code aussieht, würde man nur eine Exception
+erhalten.
+Fall 1(Serializable): In diesem Fall würde in der Klasse RMI bei ring.create und ring.get jeweils eine neue lokale Kopie angelegt
+werden. Das Resultat wäre, dass "0" ausgegeben werden würde, da ring.get auf einen "anderen" Ring zugriffe als ring.create.
+
+Fall 2(Remote): In diesem Fall würde in der Klasse RMI bei ring.create und ring.get auf den selben Ring zugegriffen. Anders gesagt:
+"rings.create("first", 7)" gibt einen Fernverweis zurück, so wie auch "rings.get()", und zwar auf das selbe Objekt. Flood und das
+andere get(des Rings-Interface) greifen demnach auf das selbe Objekt zu.
+Das Resultat wäre, dass "4711" ausgegeben werden würde, da ring.get auf den gleichen Ring zugriffe wie ring.create.
